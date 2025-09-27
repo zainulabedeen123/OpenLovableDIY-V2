@@ -114,25 +114,85 @@ with open(zip_path, 'rb') as f:
       try {
         console.log('[create-zip] Using Vercel Provider with /vercel/sandbox path');
 
-        // Change to correct directory and create zip
-        const zipResult = await provider.runCommand('cd /vercel/sandbox && zip -r /tmp/project.zip . -x "node_modules/*" ".git/*" ".next/*" "dist/*" "build/*" "*.log"');
+        // Install zip utility using dnf package manager with sudo
+        console.log('[create-zip] Installing zip utility...');
+        const installResult = await provider.sandbox.runCommand({
+          cmd: 'dnf',
+          args: ['install', '-y', 'zip'],
+          sudo: true
+        });
 
-        if (!zipResult.success && zipResult.exitCode !== 0) {
-          throw new Error(`Failed to create zip: ${zipResult.stderr}`);
+        // Create zip file
+        const zipResult = await provider.sandbox.runCommand({
+          cmd: 'zip',
+          args: ['-r', '/tmp/project.zip', '.', '-x', 'node_modules/*', '.git/*', '.next/*', 'dist/*', 'build/*', '*.log'],
+          cwd: '/vercel/sandbox'
+        });
+
+        // Handle stdout and stderr - they might be functions in Vercel SDK
+        let stderr = '';
+        try {
+          if (typeof zipResult.stderr === 'function') {
+            stderr = await zipResult.stderr();
+          } else {
+            stderr = zipResult.stderr || '';
+          }
+        } catch (e) {
+          stderr = '';
         }
 
-        const sizeResult = await provider.runCommand('ls -la /tmp/project.zip | awk \'{print $5}\'');
-        const fileSize = sizeResult.stdout.trim();
+        if (zipResult.exitCode !== 0) {
+          throw new Error(`Failed to create zip: ${stderr}`);
+        }
+
+        const sizeResult = await provider.sandbox.runCommand({
+          cmd: 'sh',
+          args: ['-c', 'ls -la /tmp/project.zip | awk \'{print $5}\'']
+        });
+
+        let fileSize = '';
+        try {
+          if (typeof sizeResult.stdout === 'function') {
+            fileSize = (await sizeResult.stdout()).trim();
+          } else {
+            fileSize = (sizeResult.stdout || '').trim();
+          }
+        } catch (e) {
+          fileSize = 'unknown';
+        }
         console.log(`[create-zip] Created project.zip (${fileSize} bytes)`);
 
         // Read the zip file and convert to base64
-        const readResult = await provider.runCommand('base64 /tmp/project.zip');
+        const readResult = await provider.sandbox.runCommand({
+          cmd: 'base64',
+          args: ['/tmp/project.zip']
+        });
 
-        if (!readResult.success && readResult.exitCode !== 0) {
-          throw new Error(`Failed to read zip file: ${readResult.stderr}`);
+        let readStderr = '';
+        try {
+          if (typeof readResult.stderr === 'function') {
+            readStderr = await readResult.stderr();
+          } else {
+            readStderr = readResult.stderr || '';
+          }
+        } catch (e) {
+          readStderr = '';
         }
 
-        const base64Content = readResult.stdout.trim();
+        if (readResult.exitCode !== 0) {
+          throw new Error(`Failed to read zip file: ${readStderr}`);
+        }
+
+        let base64Content = '';
+        try {
+          if (typeof readResult.stdout === 'function') {
+            base64Content = (await readResult.stdout()).trim();
+          } else {
+            base64Content = (readResult.stdout || '').trim();
+          }
+        } catch (e) {
+          throw new Error('Failed to get base64 content from command result');
+        }
 
         // Create a data URL for download
         const dataUrl = `data:application/zip;base64,${base64Content}`;
