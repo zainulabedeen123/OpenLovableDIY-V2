@@ -38,6 +38,7 @@ interface ChatMessage {
   metadata?: {
     scrapedUrl?: string;
     scrapedContent?: any;
+    projectDescription?: string;
     generatedCode?: string;
     appliedFiles?: string[];
     commandType?: 'input' | 'output' | 'error' | 'success';
@@ -156,26 +157,26 @@ function AISandboxPage() {
       const urlParam = searchParams.get('url');
       const templateParam = searchParams.get('template');
       const detailsParam = searchParams.get('details');
-      
-      // Then check session storage as fallback
-      const storedUrl = urlParam || sessionStorage.getItem('targetUrl');
+
+      // Then check session storage as fallback - now using projectDescription instead of targetUrl
+      const storedDescription = urlParam || sessionStorage.getItem('projectDescription');
       const storedStyle = templateParam || sessionStorage.getItem('selectedStyle');
       const storedModel = sessionStorage.getItem('selectedModel');
       const storedInstructions = sessionStorage.getItem('additionalInstructions');
-      
-      if (storedUrl) {
-        // Mark that we have an initial submission since we're loading with a URL
+
+      if (storedDescription) {
+        // Mark that we have an initial submission since we're loading with a description
         setHasInitialSubmission(true);
-        
-        // Clear sessionStorage after reading  
-        sessionStorage.removeItem('targetUrl');
+
+        // Clear sessionStorage after reading
+        sessionStorage.removeItem('projectDescription');
         sessionStorage.removeItem('selectedStyle');
         sessionStorage.removeItem('selectedModel');
         sessionStorage.removeItem('additionalInstructions');
         // Note: Don't clear siteMarkdown here, it will be cleared when used
-        
+
         // Set the values in the component state
-        setHomeUrlInput(storedUrl);
+        setHomeUrlInput(storedDescription);
         setSelectedStyle(storedStyle || 'modern');
         
         // Add details to context if provided
@@ -262,8 +263,8 @@ function AISandboxPage() {
           await createSandbox(true);
         }
         
-        // If we have a URL from the home page, mark for automatic start
-        if (storedUrl && isMounted) {
+        // If we have a description from the home page, mark for automatic start
+        if (storedDescription && isMounted) {
           // We'll trigger the generation after the component is fully mounted
           // and the startGeneration function is defined
           sessionStorage.setItem('autoStart', 'true');
@@ -2629,27 +2630,18 @@ Tip: I automatically detect and install npm packages from your code imports (lik
     // Set loading background to ensure proper visual feedback
     setShowLoadingBackground(true);
     
-    // Clear messages and immediately show the cloning message
+    // Clear messages and immediately show the generation message
     setChatMessages([]);
-    let displayUrl = homeUrlInput.trim();
-    if (!displayUrl.match(/^https?:\/\//i)) {
-      displayUrl = 'https://' + displayUrl;
-    }
-    // Remove protocol for cleaner display
-    const cleanUrl = displayUrl.replace(/^https?:\/\//i, '');
-    addChatMessage(`Starting to clone ${cleanUrl}...`, 'system');
-    
-    // Start creating sandbox and capturing screenshot immediately in parallel
+    const projectDescription = homeUrlInput.trim();
+    addChatMessage(`Starting to build: ${projectDescription}...`, 'system');
+
+    // Start creating sandbox
     const sandboxPromise = !sandboxData ? createSandbox(true) : Promise.resolve(null);
-    
+
     // Set loading stage immediately before hiding home screen
-    setLoadingStage('gathering');
+    setLoadingStage('planning');
     // Also ensure we're on preview tab to show the loading overlay
     setActiveTab('preview');
-    
-    // Always capture screenshot for new URLs, even if sandbox exists
-    // This ensures the loading screen shows properly
-    captureUrlScreenshot(displayUrl);
     
     setTimeout(async () => {
       setShowHomeScreen(false);
@@ -2662,135 +2654,57 @@ Tip: I automatically detect and install npm packages from your code imports (lik
       
       // Wait for sandbox to be ready (if it's still creating)
       await sandboxPromise;
-      
-      // Now start the clone process which will stream the generation
+
+      // Now start the generation process
       setUrlInput(homeUrlInput);
       setUrlOverlayVisible(false); // Make sure overlay is closed
-      setUrlStatus(['Scraping website content...']);
-      
+      setUrlStatus(['Preparing to generate your app...']);
+
       try {
-        // Scrape the website
-        let url = homeUrlInput.trim();
-        if (!url.match(/^https?:\/\//i)) {
-          url = 'https://' + url;
-        }
-        
-        // Screenshot is already being captured in parallel above
-        
-        let scrapeData;
-        
-        // Check if we have pre-scraped markdown content from search results
-        const storedMarkdown = sessionStorage.getItem('siteMarkdown');
-        if (storedMarkdown) {
-          // Use the pre-scraped content
-          scrapeData = {
-            success: true,
-            content: storedMarkdown,
-            title: new URL(url).hostname,
-            source: 'search-result'
-          };
-          sessionStorage.removeItem('siteMarkdown'); // Clear after use
-          addChatMessage('Using cached content from search results...', 'system');
-        } else {
-          // Perform fresh scraping
-          const scrapeResponse = await fetch('/api/scrape-url-enhanced', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ url })
-          });
-          
-          if (!scrapeResponse.ok) {
-            throw new Error('Failed to scrape website');
-          }
-          
-          scrapeData = await scrapeResponse.json();
-          
-          if (!scrapeData.success) {
-            throw new Error(scrapeData.error || 'Failed to scrape website');
-          }
-        }
-        
-        setUrlStatus(['Website scraped successfully!', 'Generating React app...']);
-        
-        // Clear preparing design state and switch to generation tab
+        const projectDescription = homeUrlInput.trim();
+
+        addChatMessage('Analyzing your requirements...', 'system');
+
+        // Clear preparing design state
         setIsPreparingDesign(false);
-        setIsScreenshotLoaded(false); // Reset loaded state
-        setUrlScreenshot(null); // Clear screenshot when starting generation
-        setTargetUrl(''); // Clear target URL
-        
-        // Update loading stage to planning
-        setLoadingStage('planning');
-        
-        // Brief pause before switching to generation tab
-        setTimeout(() => {
-          setLoadingStage('generating');
-          setActiveTab('generation');
-        }, 1500);
-        
-        // Store scraped data in conversation context
+        setIsScreenshotLoaded(false);
+        setUrlScreenshot(null);
+        setTargetUrl('');
+
+        // Update loading stage to generating
+        setLoadingStage('generating');
+        setActiveTab('generation');
+
+        // Store project description in conversation context
         setConversationContext(prev => ({
           ...prev,
-          scrapedWebsites: [...prev.scrapedWebsites, {
-            url: url,
-            content: scrapeData,
-            timestamp: new Date()
-          }],
-          currentProject: `${url} Clone`
+          currentProject: projectDescription
         }));
         
-        // Filter out style-related context when using screenshot/URL-based generation
-        // Only keep user's explicit instructions, not inherited styles
-        let filteredContext = homeContextInput;
-        if (homeUrlInput && homeContextInput) {
-          // Check if the context contains default style names that shouldn't be inherited
-          const stylePatterns = [
-            'Glassmorphism style design',
-            'Neumorphism style design', 
-            'Brutalism style design',
-            'Minimalist style design',
-            'Dark Mode style design',
-            'Gradient Rich style design',
-            '3D Depth style design',
-            'Retro Wave style design',
-            'Modern clean and minimalist style design',
-            'Fun colorful and playful style design',
-            'Corporate professional and sleek style design',
-            'Creative artistic and unique style design'
-          ];
-          
-          // If the context exactly matches or starts with a style pattern, filter it out
-          const startsWithStyle = stylePatterns.some(pattern => 
-            homeContextInput.trim().startsWith(pattern)
-          );
-          
-          if (startsWithStyle) {
-            // Extract only the additional instructions part after the style
-            const additionalMatch = homeContextInput.match(/\. (.+)$/);
-            filteredContext = additionalMatch ? additionalMatch[1] : '';
-          }
-        }
-        
-        const prompt = `I want to recreate the ${url} website as a complete React application based on the scraped content below.
+        // Build the prompt from the project description
+        let additionalContext = homeContextInput || '';
 
-${JSON.stringify(scrapeData, null, 2)}
+        const prompt = `Create a complete React application based on the following description:
 
-${filteredContext ? `ADDITIONAL CONTEXT/REQUIREMENTS FROM USER:
-${filteredContext}
+${projectDescription}
+
+${additionalContext ? `ADDITIONAL REQUIREMENTS:
+${additionalContext}
 
 Please incorporate these requirements into the design and implementation.` : ''}
 
 IMPORTANT INSTRUCTIONS:
 - Create a COMPLETE, working React application
-- Implement ALL sections and features from the original site
 - Use Tailwind CSS for all styling (no custom CSS files)
 - Make it responsive and modern
-- Ensure all text content matches the original
 - Create proper component structure
 - Make sure the app actually renders visible content
 - Create ALL components that you reference in imports
-${filteredContext ? '- Apply the user\'s context/theme requirements throughout the application' : ''}
+- Design should be clean, modern, and professional
+- Include appropriate sections and features based on the description
+${additionalContext ? '- Apply the user\'s additional requirements throughout the application' : ''}
 
-Focus on the key sections and content, making it clean and modern.`;
+Focus on creating a polished, functional application that matches the description.`;
         
         setGenerationProgress(prev => ({
           isGenerating: true,
@@ -3004,11 +2918,10 @@ Focus on the key sections and content, making it clean and modern.`;
           await applyGeneratedCode(generatedCode, false);
           
           addChatMessage(
-            `Successfully recreated ${url} as a modern React app${homeContextInput ? ` with your requested context: "${homeContextInput}"` : ''}! The scraped content is now in my context, so you can ask me to modify specific sections or add features based on the original site.`, 
+            `Successfully created your React app${homeContextInput ? ` with your requested context: "${homeContextInput}"` : ''}! You can now ask me to modify sections or add features to the application.`,
             'ai',
             {
-              scrapedUrl: url,
-              scrapedContent: scrapeData,
+              projectDescription: projectDescription,
               generatedCode: generatedCode
             }
           );
