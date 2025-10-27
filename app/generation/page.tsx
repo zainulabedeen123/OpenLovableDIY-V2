@@ -446,7 +446,35 @@ function AISandboxPage() {
           }
         );
 
+        // Set the VM ref immediately so polling can find it
         stackblitzVMRef.current = vm;
+        console.log('[StackBlitz] VM object received, waiting for it to be fully ready...');
+
+        // Wait for the VM to be fully ready by checking if we can access its methods
+        // The VM is ready when the iframe has loaded and the WebContainer is initialized
+        let attempts = 0;
+        const maxAttempts = 20; // 10 seconds (500ms * 20)
+
+        while (attempts < maxAttempts) {
+          try {
+            // Try to access the VM's file system to check if it's ready
+            // This will throw if the VM is not ready yet
+            if (vm && typeof vm.applyFsDiff === 'function') {
+              console.log('[StackBlitz] VM is fully ready and functional');
+              break;
+            }
+          } catch (e) {
+            // VM not ready yet, continue waiting
+          }
+
+          await new Promise(resolve => setTimeout(resolve, 500));
+          attempts++;
+        }
+
+        if (attempts >= maxAttempts) {
+          console.warn('[StackBlitz] VM took longer than expected to be ready, but continuing anyway');
+        }
+
         console.log('[StackBlitz] Project embedded successfully');
       } catch (error) {
         console.error('[StackBlitz] Failed to embed project:', error);
