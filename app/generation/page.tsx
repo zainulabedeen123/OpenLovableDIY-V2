@@ -681,38 +681,47 @@ Tip: I automatically detect and install npm packages from your code imports (lik
     let match;
 
     while ((match = fileRegex.exec(code)) !== null) {
+      const filePath = match[1];
+      const fileContent = match[2].trim();
+
+      console.log('[applyCodeToStackBlitz] Parsed file:', filePath, 'content length:', fileContent.length);
+
       files.push({
-        path: match[1],
-        content: match[2].trim()
+        path: filePath,
+        content: fileContent
       });
     }
 
     console.log('[applyCodeToStackBlitz] Found', files.length, 'files to apply');
 
-    // Build the diff object with all files at once
-    const createDiff: Record<string, any> = {};
-
+    // Apply files one by one using the file system API
     for (const file of files) {
-      createDiff[file.path] = {
-        file: {
-          contents: file.content
-        }
-      };
+      try {
+        console.log('[applyCodeToStackBlitz] Writing file:', file.path);
+
+        // Ensure content is a string
+        const contentString = String(file.content);
+
+        // Use the StackBlitz file system API to write files
+        await vm.applyFsDiff({
+          create: {
+            [file.path]: {
+              file: {
+                contents: contentString
+              }
+            }
+          },
+          destroy: []
+        });
+
+        console.log('[applyCodeToStackBlitz] Successfully wrote:', file.path);
+      } catch (error) {
+        console.error('[applyCodeToStackBlitz] Error writing file:', file.path, error);
+        // Continue with other files even if one fails
+      }
     }
 
-    // Apply all files to StackBlitz VM in one operation
-    try {
-      console.log('[applyCodeToStackBlitz] Applying', files.length, 'files to VM...');
-      await vm.applyFsDiff({
-        create: createDiff,
-        destroy: [] // Required: empty array for files to delete
-      });
-      console.log('[applyCodeToStackBlitz] All files applied successfully');
-    } catch (error) {
-      console.error('[applyCodeToStackBlitz] Error applying files:', error);
-      throw error;
-    }
-
+    console.log('[applyCodeToStackBlitz] All files applied');
     return files;
   };
 
