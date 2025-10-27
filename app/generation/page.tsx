@@ -1714,15 +1714,15 @@ Tip: I automatically detect and install npm packages from your code imports (lik
     }
     
     // Start sandbox creation in parallel if needed
-    let sandboxPromise: Promise<void> | null = null;
+    let sandboxPromise: Promise<SandboxData | null> | null = null;
     let sandboxCreating = false;
-    
+
     if (!sandboxData) {
       sandboxCreating = true;
       addChatMessage('Creating sandbox while I plan your app...', 'system');
       sandboxPromise = createSandbox(true).catch((error: any) => {
         addChatMessage(`Failed to create sandbox: ${error.message}`, 'system');
-        throw error;
+        return null;
       });
     }
     
