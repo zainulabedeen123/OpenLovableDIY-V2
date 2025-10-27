@@ -144,19 +144,14 @@ export default function HomePage() {
           </p>
 
           {/* Input Card */}
-          <div className="relative bg-gradient-to-br from-[#2a2a2a] to-[#252525] rounded-3xl p-6 border border-white/20 shadow-2xl max-w-4xl mx-auto backdrop-blur-sm">
+          <div className="relative bg-gradient-to-br from-[#2a2a2a] to-[#252525] rounded-3xl p-4 border border-white/20 shadow-2xl max-w-5xl mx-auto backdrop-blur-sm">
             {/* Gradient border effect */}
             <div className="absolute inset-0 rounded-3xl bg-gradient-to-r from-[#ff6b6b]/20 via-transparent to-[#4ecdc4]/20 p-[1px]">
               <div className="w-full h-full rounded-3xl bg-gradient-to-br from-[#2a2a2a] to-[#252525]"></div>
             </div>
 
             <div className="relative z-10">
-              <div className="flex items-start gap-4 mb-5">
-                <button className="p-2.5 text-gray-400 hover:text-white hover:bg-white/5 rounded-xl transition-all mt-4">
-                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-                  </svg>
-                </button>
+              <div className="flex items-center gap-4">
                 <input
                   type="text"
                   value={url}
@@ -168,38 +163,16 @@ export default function HomePage() {
                     }
                   }}
                   placeholder="Ask OpenLovable to create something amazing..."
-                  className="flex-1 bg-transparent text-white placeholder-gray-400 focus:outline-none text-lg py-8 px-3 font-medium"
+                  className="flex-1 bg-transparent text-white placeholder-gray-400 focus:outline-none text-xl py-10 px-6 font-medium"
                 />
-                <div className="flex items-center gap-3 mt-4">
-                  <button className="p-2.5 text-gray-400 hover:text-white hover:bg-white/5 rounded-xl transition-all">
-                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" />
-                    </svg>
-                  </button>
-                  <button
-                    onClick={handleSubmit}
-                    disabled={!url.trim()}
-                    className="p-5 bg-gradient-to-r from-[#ff6b6b] to-[#ff4757] text-white rounded-full hover:from-[#ff5252] hover:to-[#ff3838] transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-xl hover:shadow-2xl transform hover:scale-105"
-                  >
-                    <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2.5}>
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M14 5l7 7m0 0l-7 7m7-7H3" />
-                    </svg>
-                  </button>
-                </div>
-              </div>
-
-              <div className="flex items-center gap-4 text-sm pl-12">
-                <button className="flex items-center gap-2 px-4 py-2 bg-white/5 rounded-xl text-gray-400 hover:text-white hover:bg-white/10 transition-all border border-white/5">
-                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13" />
+                <button
+                  onClick={handleSubmit}
+                  disabled={!url.trim()}
+                  className="p-6 bg-gradient-to-r from-[#ff6b6b] via-[#ff5252] to-[#ff4757] text-white rounded-2xl hover:from-[#ff5252] hover:via-[#ff3838] hover:to-[#ff3838] transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed shadow-2xl hover:shadow-[0_20px_40px_rgba(255,107,107,0.4)] transform hover:scale-105 active:scale-95 border border-white/10"
+                >
+                  <svg className="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2.5}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M14 5l7 7m0 0l-7 7m7-7H3" />
                   </svg>
-                  Attach
-                </button>
-                <button className="flex items-center gap-2 px-4 py-2 bg-white/5 rounded-xl text-gray-400 hover:text-white hover:bg-white/10 transition-all border border-white/5">
-                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                  </svg>
-                  Public
                 </button>
               </div>
             </div>
