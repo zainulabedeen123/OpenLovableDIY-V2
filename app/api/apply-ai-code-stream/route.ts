@@ -736,6 +736,36 @@ export async function POST(request: NextRequest) {
           }
         }
 
+        // Restart Vite dev server to pick up new files
+        if (results.filesCreated.length > 0 || results.filesUpdated.length > 0) {
+          try {
+            console.log('[apply-ai-code-stream] Restarting Vite dev server to pick up changes...');
+            await sendProgress({
+              type: 'info',
+              message: 'Restarting dev server...'
+            });
+
+            // Kill existing Vite process
+            await providerInstance.runCommand('pkill -f vite || true');
+
+            // Wait a moment for the process to die
+            await new Promise(resolve => setTimeout(resolve, 1000));
+
+            // Start Vite dev server in background
+            providerInstance.runCommand('cd /vercel/sandbox && npm run dev').catch(() => {
+              // Ignore errors - Vite will run in background
+            });
+
+            // Wait for Vite to start
+            await new Promise(resolve => setTimeout(resolve, 3000));
+
+            console.log('[apply-ai-code-stream] Vite dev server restarted');
+          } catch (error) {
+            console.error('[apply-ai-code-stream] Failed to restart Vite:', error);
+            // Continue anyway - not critical
+          }
+        }
+
         // Send final results
         await sendProgress({
           type: 'complete',
