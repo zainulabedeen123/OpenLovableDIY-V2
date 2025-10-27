@@ -689,25 +689,30 @@ Tip: I automatically detect and install npm packages from your code imports (lik
 
     console.log('[applyCodeToStackBlitz] Found', files.length, 'files to apply');
 
-    // Apply files to StackBlitz VM
+    // Build the diff object with all files at once
+    const createDiff: Record<string, any> = {};
+
     for (const file of files) {
-      try {
-        console.log('[applyCodeToStackBlitz] Writing file:', file.path);
-        await vm.applyFsDiff({
-          create: {
-            [file.path]: {
-              file: {
-                contents: file.content
-              }
-            }
-          }
-        });
-      } catch (error) {
-        console.error('[applyCodeToStackBlitz] Error writing file:', file.path, error);
-      }
+      createDiff[file.path] = {
+        file: {
+          contents: file.content
+        }
+      };
     }
 
-    console.log('[applyCodeToStackBlitz] All files applied successfully');
+    // Apply all files to StackBlitz VM in one operation
+    try {
+      console.log('[applyCodeToStackBlitz] Applying', files.length, 'files to VM...');
+      await vm.applyFsDiff({
+        create: createDiff,
+        destroy: [] // Required: empty array for files to delete
+      });
+      console.log('[applyCodeToStackBlitz] All files applied successfully');
+    } catch (error) {
+      console.error('[applyCodeToStackBlitz] Error applying files:', error);
+      throw error;
+    }
+
     return files;
   };
 
