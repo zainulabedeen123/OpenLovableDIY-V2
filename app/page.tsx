@@ -77,23 +77,25 @@ export default function HomePage() {
   return (
     <div className="min-h-screen bg-gradient-to-b from-[#1a1a1a] via-[#2d4a7c] to-[#e67e9f]">
       {/* Header */}
-      <header className="relative z-10 px-6 py-4 bg-[#1a1a1a]">
+      <header className="relative z-10 px-6 py-5 bg-[#1a1a1a]/95 backdrop-blur-sm border-b border-white/5">
         <div className="max-w-7xl mx-auto flex justify-between items-center">
-          <div className="flex items-center gap-8">
-            <div className="flex items-center gap-2">
-              <svg className="w-6 h-6 text-[#ff6b6b]" viewBox="0 0 24 24" fill="currentColor">
-                <path d="M12 2L2 7v10c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V7l-10-5z"/>
-              </svg>
-              <span className="text-lg font-semibold text-white">OpenLovable</span>
+          <div className="flex items-center gap-10">
+            <div className="flex items-center gap-3">
+              <div className="p-1.5 bg-gradient-to-br from-[#ff6b6b] to-[#ff4757] rounded-lg">
+                <svg className="w-5 h-5 text-white" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M12 2L2 7v10c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V7l-10-5z"/>
+                </svg>
+              </div>
+              <span className="text-xl font-bold text-white">OpenLovable</span>
             </div>
-            <nav className="hidden md:flex items-center gap-6 text-sm">
-              <a href="#" className="text-gray-400 hover:text-white transition-colors">Community</a>
-              <a href="#" className="text-gray-400 hover:text-white transition-colors">Pricing</a>
-              <a href="#" className="text-gray-400 hover:text-white transition-colors">Enterprise</a>
+            <nav className="hidden md:flex items-center gap-8 text-sm">
+              <a href="#" className="text-gray-300 hover:text-white transition-colors font-medium">Community</a>
+              <a href="#" className="text-gray-300 hover:text-white transition-colors font-medium">Pricing</a>
+              <a href="#" className="text-gray-300 hover:text-white transition-colors font-medium">Enterprise</a>
             </nav>
           </div>
-          <div className="flex items-center gap-3">
-            <button className="p-2 text-gray-400 hover:text-white transition-colors">
+          <div className="flex items-center gap-4">
+            <button className="p-2.5 text-gray-300 hover:text-white hover:bg-white/5 rounded-lg transition-all">
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
               </svg>
@@ -102,9 +104,9 @@ export default function HomePage() {
               href="https://github.com/zainulabedeen123/OpenLovableDIY-V2"
               target="_blank"
               rel="noopener noreferrer"
-              className="flex items-center gap-2 px-4 py-2 bg-[#ff3366] text-white rounded-lg hover:bg-[#ff4477] transition-colors text-sm font-medium"
+              className="flex items-center gap-2 px-4 py-2.5 bg-gradient-to-r from-[#ff3366] to-[#ff4477] text-white rounded-xl hover:from-[#ff4477] hover:to-[#ff5588] transition-all text-sm font-semibold shadow-lg"
             >
-              <span className="w-5 h-5 bg-white/20 rounded flex items-center justify-center text-xs font-bold">M</span>
+              <span className="w-5 h-5 bg-white/20 rounded-md flex items-center justify-center text-xs font-bold">M</span>
               My Lovable
             </a>
           </div>
@@ -123,13 +125,16 @@ export default function HomePage() {
           </div>
 
           {/* Title */}
-          <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-6 leading-tight">
-            Build something{' '}
+          <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-6 leading-tight text-center">
             <span className="inline-flex items-center gap-2">
               <svg className="w-10 h-10 md:w-12 md:h-12 lg:w-14 lg:h-14 text-[#ff6b6b]" viewBox="0 0 24 24" fill="currentColor">
                 <path d="M12 2L2 7v10c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V7l-10-5z"/>
               </svg>
               OpenLovable
+            </span>
+            <br />
+            <span className="text-3xl md:text-4xl lg:text-5xl text-white/90 font-medium">
+              Lovable for Everyone
             </span>
           </h1>
 
@@ -139,57 +144,64 @@ export default function HomePage() {
           </p>
 
           {/* Input Card */}
-          <div className="bg-[#2a2a2a] rounded-3xl p-5 border border-white/10 shadow-2xl max-w-4xl mx-auto">
-            <div className="flex items-start gap-3 mb-4">
-              <button className="p-2 text-gray-400 hover:text-white transition-colors mt-3">
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-                </svg>
-              </button>
-              <input
-                type="text"
-                value={url}
-                onChange={(e) => setUrl(e.target.value)}
-                onKeyDown={(e) => {
-                  if (e.key === "Enter") {
-                    e.preventDefault();
-                    handleSubmit();
-                  }
-                }}
-                placeholder="Ask Lovable to create"
-                className="flex-1 bg-transparent text-white placeholder-gray-500 focus:outline-none text-base py-8 px-2"
-              />
-              <div className="flex items-center gap-2 mt-3">
-                <button className="p-2 text-gray-400 hover:text-white transition-colors">
-                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" />
-                  </svg>
-                </button>
-                <button
-                  onClick={handleSubmit}
-                  disabled={!url.trim()}
-                  className="p-5 bg-gradient-to-r from-gray-600 to-gray-700 text-white rounded-full hover:from-gray-500 hover:to-gray-600 transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-lg"
-                >
-                  <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2.5}>
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M14 5l7 7m0 0l-7 7m7-7H3" />
-                  </svg>
-                </button>
-              </div>
+          <div className="relative bg-gradient-to-br from-[#2a2a2a] to-[#252525] rounded-3xl p-6 border border-white/20 shadow-2xl max-w-4xl mx-auto backdrop-blur-sm">
+            {/* Gradient border effect */}
+            <div className="absolute inset-0 rounded-3xl bg-gradient-to-r from-[#ff6b6b]/20 via-transparent to-[#4ecdc4]/20 p-[1px]">
+              <div className="w-full h-full rounded-3xl bg-gradient-to-br from-[#2a2a2a] to-[#252525]"></div>
             </div>
 
-            <div className="flex items-center gap-3 text-sm pl-10">
-              <button className="flex items-center gap-2 px-3 py-1.5 bg-white/5 rounded-lg text-gray-400 hover:text-white hover:bg-white/10 transition-colors">
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13" />
-                </svg>
-                Attach
-              </button>
-              <button className="flex items-center gap-2 px-3 py-1.5 bg-white/5 rounded-lg text-gray-400 hover:text-white hover:bg-white/10 transition-colors">
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-                Public
-              </button>
+            <div className="relative z-10">
+              <div className="flex items-start gap-4 mb-5">
+                <button className="p-2.5 text-gray-400 hover:text-white hover:bg-white/5 rounded-xl transition-all mt-4">
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                  </svg>
+                </button>
+                <input
+                  type="text"
+                  value={url}
+                  onChange={(e) => setUrl(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") {
+                      e.preventDefault();
+                      handleSubmit();
+                    }
+                  }}
+                  placeholder="Ask OpenLovable to create something amazing..."
+                  className="flex-1 bg-transparent text-white placeholder-gray-400 focus:outline-none text-lg py-8 px-3 font-medium"
+                />
+                <div className="flex items-center gap-3 mt-4">
+                  <button className="p-2.5 text-gray-400 hover:text-white hover:bg-white/5 rounded-xl transition-all">
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" />
+                    </svg>
+                  </button>
+                  <button
+                    onClick={handleSubmit}
+                    disabled={!url.trim()}
+                    className="p-5 bg-gradient-to-r from-[#ff6b6b] to-[#ff4757] text-white rounded-full hover:from-[#ff5252] hover:to-[#ff3838] transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-xl hover:shadow-2xl transform hover:scale-105"
+                  >
+                    <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2.5}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                    </svg>
+                  </button>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-4 text-sm pl-12">
+                <button className="flex items-center gap-2 px-4 py-2 bg-white/5 rounded-xl text-gray-400 hover:text-white hover:bg-white/10 transition-all border border-white/5">
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13" />
+                  </svg>
+                  Attach
+                </button>
+                <button className="flex items-center gap-2 px-4 py-2 bg-white/5 rounded-xl text-gray-400 hover:text-white hover:bg-white/10 transition-all border border-white/5">
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                  Public
+                </button>
+              </div>
             </div>
           </div>
         </div>
