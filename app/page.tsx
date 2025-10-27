@@ -40,39 +40,17 @@ export default function HomePage() {
   const [url, setUrl] = useState<string>("");
   const [selectedStyle, setSelectedStyle] = useState<string>("1");
   const [selectedModel, setSelectedModel] = useState<string>(appConfig.ai.defaultModel);
-  const [showSearchTiles, setShowSearchTiles] = useState<boolean>(false);
-  const [searchResults, setSearchResults] = useState<SearchResult[]>([]);
-  const [isSearching, setIsSearching] = useState<boolean>(false);
-  const [hasSearched, setHasSearched] = useState<boolean>(false);
-  const [isFadingOut, setIsFadingOut] = useState<boolean>(false);
-  const [showSelectMessage, setShowSelectMessage] = useState<boolean>(false);
-  const [showInstructionsForIndex, setShowInstructionsForIndex] = useState<number | null>(null);
-  const [additionalInstructions, setAdditionalInstructions] = useState<string>('');
   const router = useRouter();
-  
-  // Simple URL validation
-  const validateUrl = (urlString: string) => {
-    if (!urlString) return false;
-    // Basic URL pattern - accepts domains with or without protocol
-    const urlPattern = /^(https?:\/\/)?([\da-z\.-]+)\.([a-z\.]{2,6})([\/\w \.-]*)*\/?$/;
-    return urlPattern.test(urlString.toLowerCase());
-  };
-
-  // Check if input is a URL (contains a dot)
-  const isURL = (str: string): boolean => {
-    const urlPattern = /^(https?:\/\/)?([a-zA-Z0-9-]+\.)+[a-zA-Z]{2,}(\/.*)?$/;
-    return urlPattern.test(str.trim());
-  };
 
   const styles = [
-    { id: "1", name: "Glassmorphism", description: "Frosted glass effect" },
-    { id: "2", name: "Neumorphism", description: "Soft 3D shadows" },
-    { id: "3", name: "Brutalism", description: "Bold and raw" },
-    { id: "4", name: "Minimalist", description: "Clean and simple" },
-    { id: "5", name: "Dark Mode", description: "Dark theme design" },
-    { id: "6", name: "Gradient Rich", description: "Vibrant gradients" },
-    { id: "7", name: "3D Depth", description: "Dimensional layers" },
-    { id: "8", name: "Retro Wave", description: "80s inspired" },
+    { id: "1", name: "Glassmorphism", icon: "✨" },
+    { id: "2", name: "Neumorphism", icon: "🎨" },
+    { id: "3", name: "Brutalism", icon: "⚡" },
+    { id: "4", name: "Minimalist", icon: "🎯" },
+    { id: "5", name: "Dark Mode", icon: "🌙" },
+    { id: "6", name: "Gradient Rich", icon: "🌈" },
+    { id: "7", name: "3D Depth", icon: "📦" },
+    { id: "8", name: "Retro Wave", icon: "🌊" },
   ];
 
   const models = appConfig.ai.availableModels.map(model => ({
@@ -80,7 +58,7 @@ export default function HomePage() {
     name: appConfig.ai.modelDisplayNames[model] || model,
   }));
 
-  const handleSubmit = async (selectedResult?: SearchResult) => {
+  const handleSubmit = async () => {
     const inputValue = url.trim();
 
     if (!inputValue) {
@@ -88,327 +66,261 @@ export default function HomePage() {
       return;
     }
 
-    // Store the user's description as project description (not a URL)
     sessionStorage.setItem('projectDescription', inputValue);
     sessionStorage.setItem('selectedStyle', selectedStyle);
     sessionStorage.setItem('selectedModel', selectedModel);
     sessionStorage.setItem('autoStart', 'true');
 
-    // Navigate to generation page
     router.push('/generation');
   };
 
   return (
-    <HeaderProvider>
-      <div className="min-h-screen bg-background-base">
-        {/* Header/Navigation Section */}
-        <HeaderDropdownWrapper />
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
+      {/* Animated background */}
+      <div className="fixed inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute top-0 -left-4 w-72 h-72 bg-purple-500 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-blob"></div>
+        <div className="absolute top-0 -right-4 w-72 h-72 bg-yellow-500 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-blob animation-delay-2000"></div>
+        <div className="absolute -bottom-8 left-20 w-72 h-72 bg-pink-500 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-blob animation-delay-4000"></div>
+      </div>
 
-        <div className="sticky top-0 left-0 w-full z-[101] bg-background-base header">
-          <div className="absolute top-0 cmw-container border-x border-border-faint h-full pointer-events-none" />
-          <div className="h-1 bg-border-faint w-full left-0 -bottom-1 absolute" />
-          <div className="cmw-container absolute h-full pointer-events-none top-0">
-            <Connector className="absolute -left-[10.5px] -bottom-11" />
-            <Connector className="absolute -right-[10.5px] -bottom-11" />
-          </div>
-
-          <HeaderWrapper>
-            <div className="max-w-[900px] mx-auto w-full flex justify-between items-center">
-              <div className="flex gap-24 items-center">
-                <HeaderBrandKit />
-              </div>
-              <div className="flex gap-8">
-                <a
-                  className="contents"
-                  href="https://github.com/zainulabedeen123/OpenLovableDIY-V2"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  <ButtonUI variant="tertiary">
-                    <GithubIcon />
-                    Source Code
-                  </ButtonUI>
-                </a>
-              </div>
+      {/* Header */}
+      <header className="relative z-10 px-6 py-6">
+        <div className="max-w-7xl mx-auto flex justify-between items-center">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 bg-gradient-to-br from-orange-500 to-pink-500 rounded-lg flex items-center justify-center">
+              <span className="text-white text-xl font-bold">🔥</span>
             </div>
-          </HeaderWrapper>
+            <span className="text-2xl font-bold text-white">Open Lovable <span className="text-orange-400">DIY</span></span>
+          </div>
+          <a
+            href="https://github.com/zainulabedeen123/OpenLovableDIY-V2"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center gap-2 px-6 py-3 bg-white/10 backdrop-blur-sm text-white rounded-xl hover:bg-white/20 transition-all border border-white/20"
+          >
+            <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+              <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/>
+            </svg>
+            Source Code
+          </a>
         </div>
+      </header>
 
-        {/* Hero Section */}
-        <section className="overflow-x-clip" id="home-hero">
-          <div className="pt-28 lg:pt-254 lg:-mt-100 pb-115 relative" id="hero-content">
-            <HomeHeroPixi />
-            <HeroFlame />
-            <BackgroundOuterPiece />
-            <HomeHeroBackground />
-
-            <div className="relative container px-16">
-              <HomeHeroBadge />
-              <HomeHeroTitle />
-              <p className="text-center text-body-large mb-4">
-                Build any website with AI, in seconds.
-              </p>
-              <p className="text-center text-body-medium text-gray-600 max-w-2xl mx-auto">
-                Describe your vision, choose a style, and watch as AI creates a fully functional React application with modern design and clean code.
-              </p>
+      {/* Hero Section */}
+      <main className="relative z-10 px-6 pt-20 pb-32">
+        <div className="max-w-7xl mx-auto">
+          {/* Badge */}
+          <div className="flex justify-center mb-8">
+            <div className="inline-flex items-center gap-2 px-4 py-2 bg-white/10 backdrop-blur-sm rounded-full border border-white/20">
+              <span className="text-2xl">✨</span>
+              <span className="text-white/90 text-sm font-medium">AI-Powered Website Builder</span>
             </div>
           </div>
 
-          {/* Mini Playground Input */}
-          <div className="container lg:contents !p-16 relative -mt-90">
-            <div className="absolute top-0 left-[calc(50%-50vw)] w-screen h-1 bg-border-faint lg:hidden" />
-            <div className="absolute bottom-0 left-[calc(50%-50vw)] w-screen h-1 bg-border-faint lg:hidden" />
-            <Connector className="-top-10 -left-[10.5px] lg:hidden" />
-            <Connector className="-top-10 -right-[10.5px] lg:hidden" />
-            <Connector className="-bottom-10 -left-[10.5px] lg:hidden" />
-            <Connector className="-bottom-10 -right-[10.5px] lg:hidden" />
+          {/* Title */}
+          <h1 className="text-6xl md:text-7xl lg:text-8xl font-bold text-center mb-6">
+            <span className="text-white">Open Lovable </span>
+            <span className="bg-gradient-to-r from-orange-400 to-pink-500 text-transparent bg-clip-text">DIY</span>
+          </h1>
 
-            {/* Hero Input Component */}
-            <div className="max-w-552 mx-auto z-[11] lg:z-[2]">
-              <div className="rounded-20 -mt-30 lg:-mt-30">
-                <div
-                  className="bg-white rounded-20"
-                  style={{
-                    boxShadow:
-                      "0px 0px 44px 0px rgba(0, 0, 0, 0.02), 0px 88px 56px -20px rgba(0, 0, 0, 0.03), 0px 56px 56px -20px rgba(0, 0, 0, 0.02), 0px 32px 32px -20px rgba(0, 0, 0, 0.03), 0px 16px 24px -12px rgba(0, 0, 0, 0.03), 0px 0px 0px 1px rgba(0, 0, 0, 0.05), 0px 0px 0px 10px #F9F9F9",
-                  }}
-                >
+          {/* Subtitle */}
+          <p className="text-xl md:text-2xl text-center text-white/80 mb-4 max-w-3xl mx-auto">
+            Build any website with AI, in seconds.
+          </p>
+          <p className="text-center text-white/60 mb-16 max-w-2xl mx-auto">
+            Describe your vision, choose a style, and watch as AI creates a fully functional React application with modern design and clean code.
+          </p>
 
-                <div className="p-16 flex gap-12 items-center w-full relative bg-white rounded-20">
-                  {/* Lightbulb icon for project description */}
-                  <svg
-                    width="20"
-                    height="20"
-                    viewBox="0 0 20 20"
-                    fill="none"
-                    xmlns="http://www.w3.org/2000/svg"
-                    className="opacity-40 flex-shrink-0"
-                  >
-                    <path d="M10 2C7.24 2 5 4.24 5 7C5 8.85 6.04 10.45 7.5 11.25V14C7.5 14.55 7.95 15 8.5 15H11.5C12.05 15 12.5 14.55 12.5 14V11.25C13.96 10.45 15 8.85 15 7C15 4.24 12.76 2 10 2Z" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-                    <path d="M8.5 17H11.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
-                  </svg>
-
+          {/* Input Card */}
+          <div className="max-w-4xl mx-auto">
+            <div className="bg-white/10 backdrop-blur-md rounded-3xl p-8 border border-white/20 shadow-2xl">
+              {/* Main Input */}
+              <div className="flex gap-4 mb-6">
+                <div className="flex-1 relative">
+                  <div className="absolute left-4 top-1/2 -translate-y-1/2 text-2xl">💡</div>
                   <input
-                    className="flex-1 bg-transparent text-body-input text-accent-black placeholder:text-black-alpha-48 focus:outline-none focus:ring-0 focus:border-transparent"
-                    placeholder="Describe the website you want to build..."
                     type="text"
                     value={url}
-                    onChange={(e) => {
-                      setUrl(e.target.value);
-                    }}
+                    onChange={(e) => setUrl(e.target.value)}
                     onKeyDown={(e) => {
                       if (e.key === "Enter") {
                         e.preventDefault();
                         handleSubmit();
                       }
                     }}
+                    placeholder="Describe the website you want to build..."
+                    className="w-full pl-14 pr-4 py-5 bg-white/90 rounded-2xl text-gray-800 placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-orange-400 text-lg"
                   />
-                  <div
-                    onClick={(e) => {
-                      e.preventDefault();
-                      handleSubmit();
-                    }}
-                  >
-                    <HeroInputSubmitButton
-                      dirty={url.length > 0}
-                      buttonText="Generate"
-                      disabled={false}
+                </div>
+                <button
+                  onClick={handleSubmit}
+                  disabled={!url.trim()}
+                  className="px-8 py-5 bg-gradient-to-r from-orange-500 to-pink-500 text-white rounded-2xl font-semibold hover:from-orange-600 hover:to-pink-600 transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-lg hover:shadow-xl"
+                >
+                  Generate →
+                </button>
+              </div>
+
+              {/* Style Selector */}
+              {url.trim() && (
+                <div className="space-y-4 animate-fadeIn">
+                  <div className="grid grid-cols-4 gap-3">
+                    {styles.map((style) => (
+                      <button
+                        key={style.id}
+                        onClick={() => setSelectedStyle(style.id)}
+                        className={`p-4 rounded-xl transition-all ${
+                          selectedStyle === style.id
+                            ? 'bg-gradient-to-br from-orange-500 to-pink-500 text-white shadow-lg scale-105'
+                            : 'bg-white/20 text-white hover:bg-white/30'
+                        }`}
+                      >
+                        <div className="text-2xl mb-1">{style.icon}</div>
+                        <div className="text-xs font-medium">{style.name}</div>
+                      </button>
+                    ))}
+                  </div>
+
+                  {/* Model & Instructions */}
+                  <div className="flex gap-3">
+                    <select
+                      value={selectedModel}
+                      onChange={(e) => setSelectedModel(e.target.value)}
+                      className="px-4 py-3 bg-white/90 rounded-xl text-gray-800 focus:outline-none focus:ring-2 focus:ring-orange-400 text-sm"
+                    >
+                      {models.map((model) => (
+                        <option key={model.id} value={model.id}>
+                          {model.name}
+                        </option>
+                      ))}
+                    </select>
+                    <input
+                      type="text"
+                      placeholder="Additional instructions (optional)"
+                      onChange={(e) => sessionStorage.setItem('additionalInstructions', e.target.value)}
+                      className="flex-1 px-4 py-3 bg-white/90 rounded-xl text-gray-800 placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-orange-400 text-sm"
                     />
                   </div>
                 </div>
-
-
-                {/* Options Section - Show when there's input */}
-                <div className={`overflow-hidden transition-all duration-500 ease-in-out ${
-                  url.trim().length > 0 ? 'max-h-[200px] opacity-100' : 'max-h-0 opacity-0'
-                }`}>
-                  <div className="p-[28px]">
-                    <div className="border-t border-gray-100 bg-white">
-                      {/* Style Selector */}
-                      <div className={`mb-2 pt-4 transition-all duration-300 transform ${
-                        url.trim().length > 0 ? 'translate-y-0 opacity-100' : '-translate-y-2 opacity-0'
-                      }`} style={{ transitionDelay: '100ms' }}>
-                        <div className="grid grid-cols-4 gap-1">
-                          {styles.map((style, index) => (
-                            <button
-                              key={style.id}
-                              onClick={() => setSelectedStyle(style.id)}
-                              className={`
-                                py-2.5 px-2 rounded text-[10px] font-medium border transition-all text-center
-                                ${selectedStyle === style.id
-                                  ? 'border-orange-500 bg-orange-50 text-orange-900'
-                                  : 'border-gray-200 hover:border-gray-300 bg-white text-gray-700'
-                                }
-                                ${url.trim().length > 0 ? 'opacity-100' : 'opacity-0'}
-                              `}
-                              style={{
-                                transitionDelay: `${150 + index * 30}ms`,
-                                transition: 'all 0.3s ease-in-out'
-                              }}
-                            >
-                              {style.name}
-                            </button>
-                          ))}
-                        </div>
-                      </div>
-
-                      {/* Model Selector Dropdown and Additional Instructions */}
-                      <div className={`flex gap-3 mt-2 pb-4 transition-all duration-300 transform ${
-                        url.trim().length > 0 ? 'translate-y-0 opacity-100' : '-translate-y-2 opacity-0'
-                      }`} style={{ transitionDelay: '400ms' }}>
-                        {/* Model Dropdown */}
-                        <select
-                          value={selectedModel}
-                          onChange={(e) => setSelectedModel(e.target.value)}
-                          className="px-3 py-2.5 text-[10px] font-medium text-gray-700 bg-white rounded border border-gray-200 focus:border-orange-500 focus:outline-none focus:ring-1 focus:ring-orange-500"
-                        >
-                          {models.map((model) => (
-                            <option key={model.id} value={model.id}>
-                              {model.name}
-                            </option>
-                          ))}
-                        </select>
-                        
-                        {/* Additional Instructions */}
-                        <input
-                          type="text"
-                          className="flex-1 px-3 py-2.5 text-[10px] text-gray-700 bg-gray-50 rounded border border-gray-200 focus:border-orange-500 focus:outline-none focus:ring-1 focus:ring-orange-500 placeholder:text-gray-400"
-                          placeholder="Additional instructions (optional)"
-                          onChange={(e) => sessionStorage.setItem('additionalInstructions', e.target.value)}
-                        />
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                </div>
-
-                <div className="h-248 top-84 cw-768 pointer-events-none absolute overflow-clip -z-10">
-                  <AsciiExplosion className="-top-200" />
-                </div>
-              </div>
+              )}
             </div>
           </div>
-        </section>
+        </div>
+      </main>
 
-        {/* Features Section */}
-        <section className="py-24 px-16">
-          <div className="max-w-6xl mx-auto">
-            <h2 className="text-3xl font-bold text-center mb-4">Why Choose Open Lovable DIY?</h2>
-            <p className="text-center text-gray-600 mb-16 max-w-2xl mx-auto">
-              Experience the future of web development with our AI-powered platform
-            </p>
+      {/* Features Section */}
+      <section className="relative z-10 px-6 py-24">
+        <div className="max-w-7xl mx-auto">
+          <h2 className="text-4xl md:text-5xl font-bold text-center text-white mb-4">
+            Why Choose Open Lovable DIY?
+          </h2>
+          <p className="text-center text-white/60 mb-16 max-w-2xl mx-auto text-lg">
+            Experience the future of web development with our AI-powered platform
+          </p>
 
-            <div className="grid md:grid-cols-3 gap-8">
-              {/* Feature 1 */}
-              <div className="p-8 rounded-2xl bg-gradient-to-br from-orange-50 to-white border border-orange-100 hover:shadow-lg transition-shadow">
-                <div className="w-12 h-12 bg-orange-500 rounded-xl flex items-center justify-center mb-4">
-                  <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
-                  </svg>
-                </div>
-                <h3 className="text-xl font-semibold mb-2">Lightning Fast</h3>
-                <p className="text-gray-600">
-                  Generate complete React applications in seconds. No more hours of setup and configuration.
-                </p>
-              </div>
+          <div className="grid md:grid-cols-3 gap-6">
+            {/* Feature 1 */}
+            <div className="group p-8 rounded-2xl bg-white/5 backdrop-blur-sm border border-white/10 hover:bg-white/10 transition-all hover:scale-105">
+              <div className="text-4xl mb-4">⚡</div>
+              <h3 className="text-xl font-semibold text-white mb-3">Lightning Fast</h3>
+              <p className="text-white/70">
+                Generate complete React applications in seconds. No more hours of setup and configuration.
+              </p>
+            </div>
 
-              {/* Feature 2 */}
-              <div className="p-8 rounded-2xl bg-gradient-to-br from-blue-50 to-white border border-blue-100 hover:shadow-lg transition-shadow">
-                <div className="w-12 h-12 bg-blue-500 rounded-xl flex items-center justify-center mb-4">
-                  <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01" />
-                  </svg>
-                </div>
-                <h3 className="text-xl font-semibold mb-2">Multiple Styles</h3>
-                <p className="text-gray-600">
-                  Choose from 8 modern design styles including Glassmorphism, Neumorphism, and more.
-                </p>
-              </div>
+            {/* Feature 2 */}
+            <div className="group p-8 rounded-2xl bg-white/5 backdrop-blur-sm border border-white/10 hover:bg-white/10 transition-all hover:scale-105">
+              <div className="text-4xl mb-4">🎨</div>
+              <h3 className="text-xl font-semibold text-white mb-3">Multiple Styles</h3>
+              <p className="text-white/70">
+                Choose from 8 modern design styles including Glassmorphism, Neumorphism, and more.
+              </p>
+            </div>
 
-              {/* Feature 3 */}
-              <div className="p-8 rounded-2xl bg-gradient-to-br from-purple-50 to-white border border-purple-100 hover:shadow-lg transition-shadow">
-                <div className="w-12 h-12 bg-purple-500 rounded-xl flex items-center justify-center mb-4">
-                  <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" />
-                  </svg>
-                </div>
-                <h3 className="text-xl font-semibold mb-2">Clean Code</h3>
-                <p className="text-gray-600">
-                  Production-ready React code with Tailwind CSS, proper component structure, and best practices.
-                </p>
-              </div>
+            {/* Feature 3 */}
+            <div className="group p-8 rounded-2xl bg-white/5 backdrop-blur-sm border border-white/10 hover:bg-white/10 transition-all hover:scale-105">
+              <div className="text-4xl mb-4">💻</div>
+              <h3 className="text-xl font-semibold text-white mb-3">Clean Code</h3>
+              <p className="text-white/70">
+                Production-ready React code with Tailwind CSS, proper component structure, and best practices.
+              </p>
+            </div>
 
-              {/* Feature 4 */}
-              <div className="p-8 rounded-2xl bg-gradient-to-br from-green-50 to-white border border-green-100 hover:shadow-lg transition-shadow">
-                <div className="w-12 h-12 bg-green-500 rounded-xl flex items-center justify-center mb-4">
-                  <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                  </svg>
-                </div>
-                <h3 className="text-xl font-semibold mb-2">Live Preview</h3>
-                <p className="text-gray-600">
-                  See your website come to life in real-time with our integrated StackBlitz preview.
-                </p>
-              </div>
+            {/* Feature 4 */}
+            <div className="group p-8 rounded-2xl bg-white/5 backdrop-blur-sm border border-white/10 hover:bg-white/10 transition-all hover:scale-105">
+              <div className="text-4xl mb-4">👁️</div>
+              <h3 className="text-xl font-semibold text-white mb-3">Live Preview</h3>
+              <p className="text-white/70">
+                See your website come to life in real-time with our integrated StackBlitz preview.
+              </p>
+            </div>
 
-              {/* Feature 5 */}
-              <div className="p-8 rounded-2xl bg-gradient-to-br from-pink-50 to-white border border-pink-100 hover:shadow-lg transition-shadow">
-                <div className="w-12 h-12 bg-pink-500 rounded-xl flex items-center justify-center mb-4">
-                  <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
-                  </svg>
-                </div>
-                <h3 className="text-xl font-semibold mb-2">AI Chat</h3>
-                <p className="text-gray-600">
-                  Refine your website through natural conversation. Ask for changes and watch them happen.
-                </p>
-              </div>
+            {/* Feature 5 */}
+            <div className="group p-8 rounded-2xl bg-white/5 backdrop-blur-sm border border-white/10 hover:bg-white/10 transition-all hover:scale-105">
+              <div className="text-4xl mb-4">💬</div>
+              <h3 className="text-xl font-semibold text-white mb-3">AI Chat</h3>
+              <p className="text-white/70">
+                Refine your website through natural conversation. Ask for changes and watch them happen.
+              </p>
+            </div>
 
-              {/* Feature 6 */}
-              <div className="p-8 rounded-2xl bg-gradient-to-br from-yellow-50 to-white border border-yellow-100 hover:shadow-lg transition-shadow">
-                <div className="w-12 h-12 bg-yellow-500 rounded-xl flex items-center justify-center mb-4">
-                  <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
-                  </svg>
-                </div>
-                <h3 className="text-xl font-semibold mb-2">Download & Deploy</h3>
-                <p className="text-gray-600">
-                  Export your project as a ZIP file and deploy anywhere. Full ownership of your code.
-                </p>
-              </div>
+            {/* Feature 6 */}
+            <div className="group p-8 rounded-2xl bg-white/5 backdrop-blur-sm border border-white/10 hover:bg-white/10 transition-all hover:scale-105">
+              <div className="text-4xl mb-4">📥</div>
+              <h3 className="text-xl font-semibold text-white mb-3">Download & Deploy</h3>
+              <p className="text-white/70">
+                Export your project as a ZIP file and deploy anywhere. Full ownership of your code.
+              </p>
             </div>
           </div>
-        </section>
+        </div>
+      </section>
 
-        {/* CTA Section */}
-        <section className="py-20 px-16 bg-gradient-to-br from-orange-50 to-purple-50">
-          <div className="max-w-4xl mx-auto text-center">
-            <h2 className="text-4xl font-bold mb-4">Ready to Build Something Amazing?</h2>
-            <p className="text-xl text-gray-600 mb-8">
+      {/* CTA Section */}
+      <section className="relative z-10 px-6 py-24">
+        <div className="max-w-4xl mx-auto">
+          <div className="bg-gradient-to-r from-orange-500 to-pink-500 rounded-3xl p-12 text-center shadow-2xl">
+            <h2 className="text-4xl md:text-5xl font-bold text-white mb-4">
+              Ready to Build Something Amazing?
+            </h2>
+            <p className="text-xl text-white/90 mb-8">
               Join developers who are building faster with AI
             </p>
-            <div className="flex gap-4 justify-center">
+            <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <a
-                href="#home-hero"
-                className="px-8 py-4 bg-orange-500 text-white rounded-xl font-semibold hover:bg-orange-600 transition-colors shadow-lg hover:shadow-xl"
+                href="#"
+                onClick={(e) => {
+                  e.preventDefault();
+                  window.scrollTo({ top: 0, behavior: 'smooth' });
+                }}
+                className="px-8 py-4 bg-white text-gray-900 rounded-xl font-semibold hover:bg-gray-100 transition-all shadow-lg hover:shadow-xl"
               >
-                Start Building Now
+                Start Building Now →
               </a>
               <a
                 href="https://github.com/zainulabedeen123/OpenLovableDIY-V2"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="px-8 py-4 bg-white text-gray-800 rounded-xl font-semibold hover:bg-gray-50 transition-colors shadow-lg hover:shadow-xl border border-gray-200"
+                className="px-8 py-4 bg-white/10 backdrop-blur-sm text-white rounded-xl font-semibold hover:bg-white/20 transition-all border border-white/30"
               >
                 View on GitHub
               </a>
             </div>
           </div>
-        </section>
+        </div>
+      </section>
 
-      </div>
-    </HeaderProvider>
+      {/* Footer */}
+      <footer className="relative z-10 px-6 py-12 border-t border-white/10">
+        <div className="max-w-7xl mx-auto text-center">
+          <p className="text-white/60">
+            Built with ❤️ by the Open Source Community
+          </p>
+          <p className="text-white/40 text-sm mt-2">
+            Powered by AI • React • Tailwind CSS • StackBlitz
+          </p>
+        </div>
+      </footer>
+    </div>
   );
 }
