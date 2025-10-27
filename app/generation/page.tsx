@@ -2885,6 +2885,10 @@ Focus on creating a polished, functional application that matches the descriptio
           
           setPromptInput(generatedCode);
 
+          // Wait a moment for React to update the sandboxData state and render the iframe
+          // This ensures the iframe element exists before we try to apply code
+          await new Promise(resolve => setTimeout(resolve, 500));
+
           // First application for generated app should not be in edit mode
           // Pass the createdSandboxData to ensure it's available
           await applyGeneratedCode(generatedCode, false, createdSandboxData || undefined);
