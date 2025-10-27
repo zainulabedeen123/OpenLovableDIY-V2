@@ -10,15 +10,8 @@ export class StackBlitzProvider extends SandboxProvider {
   constructor(config: SandboxProviderConfig = {}) {
     super(config);
 
-    // Initialize WebContainer auth if client ID is available
-    const clientId = process.env.STACKBLITZ_CLIENT_ID || process.env.NEXT_PUBLIC_STACKBLITZ_CLIENT_ID;
-    if (clientId) {
-      auth.init({
-        clientId: clientId,
-        scope: '',
-      });
-      console.log('[StackBlitzProvider] WebContainer auth initialized');
-    }
+    // Note: WebContainer auth initialization should be done on the client side only
+    // See app/generation/page.tsx for client-side auth initialization
   }
 
   async createSandbox(): Promise<SandboxInfo> {
