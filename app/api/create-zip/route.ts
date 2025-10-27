@@ -5,9 +5,31 @@ declare global {
   var activeSandboxProvider: any;
 }
 
-export async function POST() {
+export async function POST(request: Request) {
   try {
-    // Check both V2 provider (new) and V1 sandbox (legacy) patterns
+    // Get request body to check for StackBlitz project files
+    let body;
+    try {
+      body = await request.json();
+    } catch (e) {
+      body = {};
+    }
+
+    // Check for StackBlitz provider (client-side, files passed in request)
+    if (body.provider === 'stackblitz' && body.projectFiles) {
+      console.log('[create-zip] StackBlitz provider detected - returning project files for client-side ZIP creation');
+
+      // For StackBlitz, we return the project files so the client can create the ZIP
+      // This is because StackBlitz runs entirely in the browser
+      return NextResponse.json({
+        success: true,
+        provider: 'stackblitz',
+        projectFiles: body.projectFiles,
+        message: 'Project files ready for client-side ZIP creation'
+      });
+    }
+
+    // Check both V2 provider (new) and V1 sandbox (legacy) patterns for server-side providers
     const provider = global.activeSandboxProvider;
     const sandbox = global.activeSandbox;
 

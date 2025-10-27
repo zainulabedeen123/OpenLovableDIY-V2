@@ -11,6 +11,7 @@ import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism';
 import sdk from '@stackblitz/sdk';
 import { auth } from '@webcontainer/api';
+import JSZip from 'jszip';
 // Import icons from centralized module to avoid Turbopack chunk issues
 import { 
   FiFile, 
@@ -2321,30 +2322,42 @@ Tip: I automatically detect and install npm packages from your code imports (lik
       addChatMessage('Please wait for the sandbox to be created before downloading.', 'system');
       return;
     }
-    
+
     setLoading(true);
     log('Creating zip file...');
     addChatMessage('Creating ZIP file of your Vite app...', 'system');
-    
+
     try {
-      const response = await fetch('/api/create-zip', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' }
-      });
-      
-      const data = await response.json();
-      
-      if (data.success) {
-        log('Zip file created!');
-        addChatMessage('ZIP file created! Download starting...', 'system');
-        
+      // Check if this is a StackBlitz sandbox
+      const effectiveSandbox = sandboxData || sandboxDataRef.current;
+      const isStackBlitz = effectiveSandbox?.provider === 'stackblitz' || effectiveSandbox?.projectFiles;
+
+      if (isStackBlitz && effectiveSandbox?.projectFiles) {
+        // StackBlitz: Create ZIP client-side using JSZip
+        log('Creating ZIP file client-side for StackBlitz project...');
+
+        const zip = new JSZip();
+
+        // Add all project files to the ZIP
+        Object.entries(effectiveSandbox.projectFiles).forEach(([path, content]) => {
+          zip.file(path, content as string);
+        });
+
+        // Generate the ZIP file
+        const blob = await zip.generateAsync({ type: 'blob' });
+
+        // Create download link
+        const url = URL.createObjectURL(blob);
         const link = document.createElement('a');
-        link.href = data.dataUrl;
-        link.download = data.fileName || 'e2b-project.zip';
+        link.href = url;
+        link.download = 'stackblitz-project.zip';
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
-        
+        URL.revokeObjectURL(url);
+
+        log('Zip file created!');
+        addChatMessage('ZIP file created! Download starting...', 'system');
         addChatMessage(
           'Your Vite app has been downloaded! To run it locally:\n' +
           '1. Unzip the file\n' +
@@ -2354,7 +2367,36 @@ Tip: I automatically detect and install npm packages from your code imports (lik
           'system'
         );
       } else {
-        throw new Error(data.error);
+        // E2B/Vercel: Use server-side ZIP creation
+        const response = await fetch('/api/create-zip', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' }
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+          log('Zip file created!');
+          addChatMessage('ZIP file created! Download starting...', 'system');
+
+          const link = document.createElement('a');
+          link.href = data.dataUrl;
+          link.download = data.fileName || 'e2b-project.zip';
+          document.body.appendChild(link);
+          link.click();
+          document.body.removeChild(link);
+
+          addChatMessage(
+            'Your Vite app has been downloaded! To run it locally:\n' +
+            '1. Unzip the file\n' +
+            '2. Run: npm install\n' +
+            '3. Run: npm run dev\n' +
+            '4. Open http://localhost:5173',
+            'system'
+          );
+        } else {
+          throw new Error(data.error);
+        }
       }
     } catch (error: any) {
       log(`Failed to create zip: ${error.message}`, 'error');
