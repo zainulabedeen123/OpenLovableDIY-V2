@@ -527,16 +527,12 @@ function AISandboxPage() {
           sandboxCreationPromiseRef.current = null; // Clear the promise ref
         console.log('[createSandbox] Setting sandboxData from creation:', data);
 
-        // Store in ref first (synchronous)
+        // Store in ref (synchronous and persists across re-renders)
         sandboxDataRef.current = data;
         console.log('[createSandbox] Stored in sandboxDataRef:', sandboxDataRef.current);
 
-        // Then update state to trigger re-render
+        // Also update state for any components that use it
         setSandboxData(data);
-
-        // Force a re-render by updating a dummy state to ensure iframe renders
-        setShowLoadingBackground(false);
-        setTimeout(() => setShowLoadingBackground(false), 0);
 
         updateStatus('Sandbox active', true);
         log('Sandbox created successfully!');
@@ -1568,16 +1564,71 @@ Tip: I automatically detect and install npm packages from your code imports (lik
         );
       }
       
-      // Show sandbox iframe - keep showing during edits, only hide during initial loading
+      // Show preview section with "View Preview" button
       // Use sandboxData from state, or fall back to ref if state hasn't updated yet
       const effectiveSandbox = sandboxData || sandboxDataRef.current;
       if (effectiveSandbox?.url) {
         return (
-          <div className="relative w-full h-full">
+          <div className="relative w-full h-full bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900">
+            {/* Preview Ready Screen */}
+            <div className="flex flex-col items-center justify-center h-full p-8 text-center">
+              <div className="max-w-2xl">
+                {/* Success Icon */}
+                <div className="mb-6">
+                  <div className="w-20 h-20 mx-auto bg-green-500/20 rounded-full flex items-center justify-center">
+                    <svg className="w-10 h-10 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                    </svg>
+                  </div>
+                </div>
+
+                {/* Title */}
+                <h2 className="text-3xl font-bold text-white mb-4">
+                  🎉 Your Website is Ready!
+                </h2>
+
+                {/* Description */}
+                <p className="text-gray-300 mb-8 text-lg">
+                  Your website has been generated and deployed successfully. Click the button below to view your live preview.
+                </p>
+
+                {/* Preview Button */}
+                <button
+                  onClick={() => window.open(effectiveSandbox.url, '_blank')}
+                  className="inline-flex items-center gap-3 px-8 py-4 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-semibold rounded-lg shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200"
+                >
+                  <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                  </svg>
+                  View Live Preview
+                </button>
+
+                {/* Sandbox Info */}
+                <div className="mt-8 p-4 bg-gray-800/50 rounded-lg border border-gray-700">
+                  <p className="text-sm text-gray-400 mb-2">Sandbox URL:</p>
+                  <a
+                    href={effectiveSandbox.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-blue-400 hover:text-blue-300 text-sm break-all"
+                  >
+                    {effectiveSandbox.url}
+                  </a>
+                </div>
+
+                {/* Additional Info */}
+                <p className="text-gray-500 text-sm mt-6">
+                  💡 You can continue chatting to modify your website or add new features
+                </p>
+              </div>
+            </div>
+
+            {/* Hidden iframe for reference (not displayed) */}
             <iframe
               ref={iframeRef}
               src={effectiveSandbox.url}
-              className="w-full h-full border-none"
+              className="hidden"
               title="Open Lovable Sandbox"
               allow="clipboard-write"
               sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-modals"
@@ -2910,22 +2961,8 @@ Focus on creating a polished, functional application that matches the descriptio
           
           setPromptInput(generatedCode);
 
-          // Wait for React to render the iframe element (max 5 seconds)
-          // We're using sandboxDataRef, so we need to wait for the component to re-render
-          let attempts = 0;
-          const maxAttempts = 50; // 50 * 100ms = 5 seconds max
-          while (!iframeRef.current && attempts < maxAttempts) {
-            await new Promise(resolve => setTimeout(resolve, 100));
-            attempts++;
-          }
-
-          if (!iframeRef.current) {
-            console.warn('[generation] Iframe not rendered after 5 seconds, but proceeding anyway');
-            console.log('[generation] sandboxDataRef.current:', sandboxDataRef.current);
-            console.log('[generation] sandboxData state:', sandboxData);
-          } else {
-            console.log('[generation] Iframe element confirmed:', iframeRef.current);
-          }
+          // No need to wait for iframe - we're using direct navigation approach
+          console.log('[generation] Sandbox ready at:', createdSandboxData?.url || sandboxDataRef.current?.url);
 
           // First application for generated app should not be in edit mode
           // Pass the createdSandboxData to ensure it's available
