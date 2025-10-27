@@ -1,9 +1,22 @@
 import sdk from '@stackblitz/sdk';
+import { auth } from '@webcontainer/api';
 import type { SandboxProvider, SandboxData } from '../types';
 
 export class StackBlitzProvider implements SandboxProvider {
   private vm: any = null;
   private projectId: string | null = null;
+
+  constructor() {
+    // Initialize WebContainer auth if client ID is available
+    const clientId = process.env.STACKBLITZ_CLIENT_ID || process.env.NEXT_PUBLIC_STACKBLITZ_CLIENT_ID;
+    if (clientId) {
+      auth.init({
+        clientId: clientId,
+        scope: '',
+      });
+      console.log('[StackBlitzProvider] WebContainer auth initialized');
+    }
+  }
 
   async createSandbox(): Promise<SandboxData> {
     console.log('[StackBlitzProvider] Creating new project...');

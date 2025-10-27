@@ -10,6 +10,7 @@ import { HeaderProvider } from '@/components/shared/header/HeaderContext';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism';
 import sdk from '@stackblitz/sdk';
+import { auth } from '@webcontainer/api';
 // Import icons from centralized module to avoid Turbopack chunk issues
 import { 
   FiFile, 
@@ -149,6 +150,18 @@ function AISandboxPage() {
 
   // Store flag to trigger generation after component mounts
   const [shouldAutoGenerate, setShouldAutoGenerate] = useState(false);
+
+  // Initialize StackBlitz WebContainer auth
+  useEffect(() => {
+    const clientId = process.env.NEXT_PUBLIC_STACKBLITZ_CLIENT_ID;
+    if (clientId) {
+      auth.init({
+        clientId: clientId,
+        scope: '',
+      });
+      console.log('[StackBlitz] WebContainer auth initialized on client');
+    }
+  }, []);
 
   // Clear old conversation data on component mount and create/restore sandbox
   useEffect(() => {
