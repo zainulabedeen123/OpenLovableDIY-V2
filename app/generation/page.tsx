@@ -857,7 +857,8 @@ Tip: I automatically detect and install npm packages from your code imports (lik
         log('Code applied successfully!');
         console.log('[applyGeneratedCode] Response data:', data);
         console.log('[applyGeneratedCode] Debug info:', data.debug);
-        console.log('[applyGeneratedCode] Current sandboxData:', sandboxData);
+        console.log('[applyGeneratedCode] Effective sandboxData:', effectiveSandboxData);
+        console.log('[applyGeneratedCode] State sandboxData:', sandboxData);
         console.log('[applyGeneratedCode] Current iframe element:', iframeRef.current);
         console.log('[applyGeneratedCode] Current iframe src:', iframeRef.current?.src);
         
@@ -2885,9 +2886,20 @@ Focus on creating a polished, functional application that matches the descriptio
           
           setPromptInput(generatedCode);
 
-          // Wait a moment for React to update the sandboxData state and render the iframe
-          // This ensures the iframe element exists before we try to apply code
-          await new Promise(resolve => setTimeout(resolve, 500));
+          // Wait for React to update the sandboxData state and render the iframe
+          // Poll until the state is actually set (max 5 seconds)
+          let attempts = 0;
+          const maxAttempts = 50; // 50 * 100ms = 5 seconds max
+          while (!sandboxData && attempts < maxAttempts) {
+            await new Promise(resolve => setTimeout(resolve, 100));
+            attempts++;
+          }
+
+          if (!sandboxData) {
+            console.warn('[generation] sandboxData state not set after 5 seconds, proceeding with override data');
+          } else {
+            console.log('[generation] sandboxData state confirmed:', sandboxData);
+          }
 
           // First application for generated app should not be in edit mode
           // Pass the createdSandboxData to ensure it's available
