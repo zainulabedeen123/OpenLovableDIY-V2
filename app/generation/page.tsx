@@ -671,14 +671,54 @@ Tip: I automatically detect and install npm packages from your code imports (lik
     }
   };
 
+  // Client-side code application for StackBlitz
+  const applyCodeToStackBlitz = async (code: string, vm: any) => {
+    console.log('[applyCodeToStackBlitz] Applying code to StackBlitz VM...');
+
+    // Parse AI response to extract files
+    const fileRegex = /<file path="([^"]+)">([\s\S]*?)<\/file>/g;
+    const files: Array<{ path: string; content: string }> = [];
+    let match;
+
+    while ((match = fileRegex.exec(code)) !== null) {
+      files.push({
+        path: match[1],
+        content: match[2].trim()
+      });
+    }
+
+    console.log('[applyCodeToStackBlitz] Found', files.length, 'files to apply');
+
+    // Apply files to StackBlitz VM
+    for (const file of files) {
+      try {
+        console.log('[applyCodeToStackBlitz] Writing file:', file.path);
+        await vm.applyFsDiff({
+          create: {
+            [file.path]: {
+              file: {
+                contents: file.content
+              }
+            }
+          }
+        });
+      } catch (error) {
+        console.error('[applyCodeToStackBlitz] Error writing file:', file.path, error);
+      }
+    }
+
+    console.log('[applyCodeToStackBlitz] All files applied successfully');
+    return files;
+  };
+
   const applyGeneratedCode = async (code: string, isEdit: boolean = false, overrideSandboxData?: SandboxData) => {
     setLoading(true);
     log('Applying AI-generated code...');
-    
+
     try {
       // Show progress component instead of individual messages
       setCodeApplicationState({ stage: 'analyzing' });
-      
+
       // Get pending packages from tool calls
       const pendingPackages = ((window as any).pendingPackages || []).filter((pkg: any) => pkg && typeof pkg === 'string');
       if (pendingPackages.length > 0) {
@@ -686,9 +726,39 @@ Tip: I automatically detect and install npm packages from your code imports (lik
         // Clear pending packages after use
         (window as any).pendingPackages = [];
       }
-      
+
       // Use streaming endpoint for real-time feedback
       const effectiveSandboxData = overrideSandboxData || sandboxData;
+
+      // Check if we're using StackBlitz - if so, apply code directly on client
+      if (effectiveSandboxData?.provider === 'stackblitz' && stackblitzVMRef.current) {
+        console.log('[applyGeneratedCode] Using StackBlitz - applying code on client side');
+
+        setCodeApplicationState({ stage: 'applying' });
+
+        try {
+          const files = await applyCodeToStackBlitz(code, stackblitzVMRef.current);
+
+          setCodeApplicationState({ stage: 'complete', filesGenerated: files.map(f => f.path) });
+
+          addChatMessage(
+            `Successfully applied ${files.length} files to your StackBlitz project!`,
+            'system'
+          );
+
+          setLoading(false);
+          return;
+        } catch (error) {
+          console.error('[applyGeneratedCode] StackBlitz application error:', error);
+          addChatMessage(
+            `Error applying code to StackBlitz: ${error instanceof Error ? error.message : 'Unknown error'}`,
+            'system'
+          );
+          setLoading(false);
+          setCodeApplicationState({ stage: 'idle' });
+          return;
+        }
+      }
       const response = await fetch('/api/apply-ai-code-stream', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
