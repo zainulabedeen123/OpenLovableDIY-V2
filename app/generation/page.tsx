@@ -151,15 +151,21 @@ function AISandboxPage() {
   // Store flag to trigger generation after component mounts
   const [shouldAutoGenerate, setShouldAutoGenerate] = useState(false);
 
-  // Initialize StackBlitz WebContainer auth
+  // Initialize StackBlitz WebContainer auth (only once)
   useEffect(() => {
     const clientId = process.env.NEXT_PUBLIC_STACKBLITZ_CLIENT_ID;
-    if (clientId) {
-      auth.init({
-        clientId: clientId,
-        scope: '',
-      });
-      console.log('[StackBlitz] WebContainer auth initialized on client');
+    if (clientId && !(window as any).__stackblitzAuthInitialized) {
+      try {
+        auth.init({
+          clientId: clientId,
+          scope: '',
+        });
+        (window as any).__stackblitzAuthInitialized = true;
+        console.log('[StackBlitz] WebContainer auth initialized on client');
+      } catch (error) {
+        // Ignore if already initialized
+        console.log('[StackBlitz] Auth already initialized');
+      }
     }
   }, []);
 
