@@ -2791,14 +2791,19 @@ Focus on creating a polished, functional application that matches the descriptio
         const decoder = new TextDecoder();
         let generatedCode = '';
         let explanation = '';
-        
+        let buffer = ''; // Buffer for incomplete SSE messages
+
         while (true) {
           const { done, value } = await reader.read();
           if (done) break;
-          
-          const chunk = decoder.decode(value);
-          const lines = chunk.split('\n');
-          
+
+          const chunk = decoder.decode(value, { stream: true });
+          buffer += chunk;
+          const lines = buffer.split('\n');
+
+          // Keep the last line in buffer if it's incomplete
+          buffer = lines.pop() || '';
+
           for (const line of lines) {
             if (line.startsWith('data: ')) {
               try {
