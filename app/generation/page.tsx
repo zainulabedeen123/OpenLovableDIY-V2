@@ -422,11 +422,18 @@ function AISandboxPage() {
     const embedStackBlitz = async () => {
       const effectiveSandbox = sandboxData || sandboxDataRef.current;
 
+      console.log('[StackBlitz] useEffect triggered, checking conditions...');
+      console.log('[StackBlitz] - effectiveSandbox:', effectiveSandbox);
+      console.log('[StackBlitz] - has projectFiles:', !!effectiveSandbox?.projectFiles);
+      console.log('[StackBlitz] - stackblitzContainerRef.current:', stackblitzContainerRef.current);
+      console.log('[StackBlitz] - stackblitzVMRef.current:', stackblitzVMRef.current);
+
       if (!effectiveSandbox?.projectFiles || !stackblitzContainerRef.current || stackblitzVMRef.current) {
+        console.log('[StackBlitz] Skipping embed - conditions not met');
         return;
       }
 
-      console.log('[StackBlitz] Embedding project...');
+      console.log('[StackBlitz] All conditions met, embedding project...');
 
       try {
         const vm = await sdk.embedProject(
