@@ -474,17 +474,10 @@ function AISandboxPage() {
         updateStatus('Sandbox not responding', false);
         // Keep existing sandboxData if we have it - don't clear it
       } else {
-        // Only clear sandboxData if we don't already have it or if we're explicitly checking from a fresh state
-        // This prevents clearing sandboxData during normal operation when it should persist
-        if (!sandboxData) {
-          console.log('[checkSandboxStatus] No existing sandboxData, clearing state');
-          setSandboxData(null);
-          updateStatus('No sandbox', false);
-        } else {
-          // Keep existing sandboxData and just update status
-          console.log('[checkSandboxStatus] Keeping existing sandboxData, sandbox inactive but data preserved');
-          updateStatus('Sandbox status unknown', false);
-        }
+        // Don't clear sandboxData - it might be in the process of being set
+        // Just update the status
+        console.log('[checkSandboxStatus] No active sandbox from API, but not clearing state (might be creating)');
+        updateStatus('No sandbox', false);
       }
     } catch (error) {
       console.error('Failed to check sandbox status:', error);
