@@ -231,5 +231,17 @@ body {
   setVM(vm: any): void {
     this.vm = vm;
   }
+
+  async setupViteApp(): Promise<void> {
+    // StackBlitz projects are already configured with Vite in the initial project files
+    // No additional setup needed
+    console.log('[StackBlitzProvider] Vite app already configured in project files');
+  }
+
+  async restartViteServer(): Promise<void> {
+    // StackBlitz automatically handles Vite server restarts
+    // No manual restart needed
+    console.log('[StackBlitzProvider] Vite server restart not needed (handled automatically)');
+  }
 }
 
