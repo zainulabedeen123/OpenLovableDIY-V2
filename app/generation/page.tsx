@@ -1722,13 +1722,23 @@ Tip: I automatically detect and install npm packages from your code imports (lik
       const shouldShowLoadingOverlay = (isInitialGeneration || isNewGenerationWithSandbox) &&
         (loading || generationProgress.isGenerating || isPreparingDesign || loadingStage || isStartingNewGeneration);
 
-      if (isInitialGeneration || isNewGenerationWithSandbox) {
+      // Always render StackBlitz container if we have project files (even if hidden by loading overlay)
+      // This ensures the ref is set and embedding can happen
+      const effectiveSandbox = sandboxData || sandboxDataRef.current;
+      if (effectiveSandbox?.projectFiles) {
         return (
-          <div className="relative w-full h-full bg-gray-900">
-            {/* Loading overlay - only show when actively processing initial generation */}
+          <div className="relative w-full h-full bg-white">
+            {/* StackBlitz Embed Container - always rendered so ref is set */}
+            <div
+              ref={stackblitzContainerRef}
+              className="w-full h-full min-h-screen"
+              id="stackblitz-container"
+              style={{ minHeight: '600px' }}
+            />
+
+            {/* Loading overlay for initial generation */}
             {shouldShowLoadingOverlay && (
-              <div className="absolute inset-0 bg-black/70 flex flex-col items-center justify-center backdrop-blur-sm">
-                {/* Loading animation with skeleton */}
+              <div className="absolute inset-0 bg-black/70 flex flex-col items-center justify-center backdrop-blur-sm z-20">
                 <div className="text-center max-w-md">
                   {/* Animated skeleton lines */}
                   <div className="mb-6 space-y-3">
@@ -1759,24 +1769,7 @@ Tip: I automatically detect and install npm packages from your code imports (lik
                 </div>
               </div>
             )}
-          </div>
-        );
-      }
-      
-      // Show StackBlitz embed
-      // Use sandboxData from state, or fall back to ref if state hasn't updated yet
-      const effectiveSandbox = sandboxData || sandboxDataRef.current;
-      if (effectiveSandbox?.projectFiles) {
-        return (
-          <div className="relative w-full h-full bg-white">
-            {/* StackBlitz Embed Container */}
-            <div
-              ref={stackblitzContainerRef}
-              className="w-full h-full min-h-screen"
-              id="stackblitz-container"
-              style={{ minHeight: '600px' }}
-            />
-            
+
             {/* Package installation overlay - shows when installing packages or applying code */}
             {codeApplicationState.stage && codeApplicationState.stage !== 'complete' && (
               <div className="absolute inset-0 bg-white/95 backdrop-blur-sm flex items-center justify-center z-10">
