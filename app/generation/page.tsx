@@ -736,13 +736,30 @@ Tip: I automatically detect and install npm packages from your code imports (lik
       const effectiveSandboxData = overrideSandboxData || sandboxData;
 
       // Check if we're using StackBlitz - if so, apply code directly on client
-      if (effectiveSandboxData?.provider === 'stackblitz' && stackblitzVMRef.current) {
+      if (effectiveSandboxData?.provider === 'stackblitz') {
         console.log('[applyGeneratedCode] Using StackBlitz - applying code on client side');
 
         setCodeApplicationState({ stage: 'applying' });
 
         try {
-          const files = await applyCodeToStackBlitz(code, stackblitzVMRef.current);
+          // Wait for StackBlitz VM to be ready (max 30 seconds)
+          let vm = stackblitzVMRef.current;
+          let attempts = 0;
+          const maxAttempts = 60; // 30 seconds (500ms * 60)
+
+          while (!vm && attempts < maxAttempts) {
+            console.log('[applyGeneratedCode] Waiting for StackBlitz VM to be ready...', attempts);
+            await new Promise(resolve => setTimeout(resolve, 500));
+            vm = stackblitzVMRef.current;
+            attempts++;
+          }
+
+          if (!vm) {
+            throw new Error('StackBlitz VM not ready after 30 seconds');
+          }
+
+          console.log('[applyGeneratedCode] StackBlitz VM is ready, applying code...');
+          const files = await applyCodeToStackBlitz(code, vm);
 
           setCodeApplicationState({ stage: 'complete', filesGenerated: files.map(f => f.path) });
 
