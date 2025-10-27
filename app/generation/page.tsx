@@ -110,6 +110,7 @@ function AISandboxPage() {
   const iframeRef = useRef<HTMLIFrameElement>(null);
   const chatMessagesRef = useRef<HTMLDivElement>(null);
   const codeDisplayRef = useRef<HTMLDivElement>(null);
+  const sandboxDataRef = useRef<SandboxData | null>(null);
   
   const [codeApplicationState, setCodeApplicationState] = useState<CodeApplicationState>({
     stage: null
@@ -525,7 +526,11 @@ function AISandboxPage() {
           sandboxCreationRef.current = false; // Reset the ref on success
           sandboxCreationPromiseRef.current = null; // Clear the promise ref
         console.log('[createSandbox] Setting sandboxData from creation:', data);
+
+        // Store in both state and ref to ensure it persists
+        sandboxDataRef.current = data;
         setSandboxData(data);
+
         updateStatus('Sandbox active', true);
         log('Sandbox created successfully!');
         log(`Sandbox ID: ${data.sandboxId}`);
@@ -1557,12 +1562,14 @@ Tip: I automatically detect and install npm packages from your code imports (lik
       }
       
       // Show sandbox iframe - keep showing during edits, only hide during initial loading
-      if (sandboxData?.url) {
+      // Use sandboxData from state, or fall back to ref if state hasn't updated yet
+      const effectiveSandbox = sandboxData || sandboxDataRef.current;
+      if (effectiveSandbox?.url) {
         return (
           <div className="relative w-full h-full">
             <iframe
               ref={iframeRef}
-              src={sandboxData.url}
+              src={effectiveSandbox.url}
               className="w-full h-full border-none"
               title="Open Lovable Sandbox"
               allow="clipboard-write"
