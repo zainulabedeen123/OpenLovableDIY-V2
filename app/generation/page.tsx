@@ -305,17 +305,6 @@ function AISandboxPage() {
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [showHomeScreen]);
   
-  // Start capturing screenshot if URL is provided on mount (from home screen)
-  useEffect(() => {
-    if (!showHomeScreen && homeUrlInput && !urlScreenshot && !isCapturingScreenshot) {
-      let screenshotUrl = homeUrlInput.trim();
-      if (!screenshotUrl.match(/^https?:\/\//i)) {
-        screenshotUrl = 'https://' + screenshotUrl;
-      }
-      captureUrlScreenshot(screenshotUrl);
-    }
-  }, [showHomeScreen, homeUrlInput]); // eslint-disable-line react-hooks/exhaustive-deps
-
   // Auto-start generation if flagged
   useEffect(() => {
     const autoStart = sessionStorage.getItem('autoStart');
@@ -1510,30 +1499,14 @@ Tip: I automatically detect and install npm packages from your code imports (lik
       );
     } else if (activeTab === 'preview') {
       // Show loading state for initial generation or when starting a new generation with existing sandbox
-      const isInitialGeneration = !sandboxData?.url && (urlScreenshot || isCapturingScreenshot || isPreparingDesign || loadingStage);
+      const isInitialGeneration = !sandboxData?.url && (isPreparingDesign || loadingStage);
       const isNewGenerationWithSandbox = isStartingNewGeneration && sandboxData?.url;
-      const shouldShowLoadingOverlay = (isInitialGeneration || isNewGenerationWithSandbox) && 
-        (loading || generationProgress.isGenerating || isPreparingDesign || loadingStage || isCapturingScreenshot || isStartingNewGeneration);
-      
+      const shouldShowLoadingOverlay = (isInitialGeneration || isNewGenerationWithSandbox) &&
+        (loading || generationProgress.isGenerating || isPreparingDesign || loadingStage || isStartingNewGeneration);
+
       if (isInitialGeneration || isNewGenerationWithSandbox) {
         return (
           <div className="relative w-full h-full bg-gray-900">
-            {/* Screenshot as background when available */}
-            {urlScreenshot && (
-              /* eslint-disable-next-line @next/next/no-img-element */
-              <img 
-                src={urlScreenshot} 
-                alt="Website preview" 
-                className="absolute inset-0 w-full h-full object-cover transition-opacity duration-700"
-                style={{ 
-                  opacity: isScreenshotLoaded ? 1 : 0,
-                  willChange: 'opacity'
-                }}
-                onLoad={() => setIsScreenshotLoaded(true)}
-                loading="eager"
-              />
-            )}
-            
             {/* Loading overlay - only show when actively processing initial generation */}
             {shouldShowLoadingOverlay && (
               <div className="absolute inset-0 bg-black/70 flex flex-col items-center justify-center backdrop-blur-sm">
@@ -1541,29 +1514,27 @@ Tip: I automatically detect and install npm packages from your code imports (lik
                 <div className="text-center max-w-md">
                   {/* Animated skeleton lines */}
                   <div className="mb-6 space-y-3">
-                    <div className="h-2 bg-gradient-to-r from-transparent via-white/20 to-transparent rounded animate-pulse" 
+                    <div className="h-2 bg-gradient-to-r from-transparent via-white/20 to-transparent rounded animate-pulse"
                          style={{ animationDuration: '1.5s', animationDelay: '0s' }} />
-                    <div className="h-2 bg-gradient-to-r from-transparent via-white/20 to-transparent rounded animate-pulse w-4/5 mx-auto" 
+                    <div className="h-2 bg-gradient-to-r from-transparent via-white/20 to-transparent rounded animate-pulse w-4/5 mx-auto"
                          style={{ animationDuration: '1.5s', animationDelay: '0.2s' }} />
-                    <div className="h-2 bg-gradient-to-r from-transparent via-white/20 to-transparent rounded animate-pulse w-3/5 mx-auto" 
+                    <div className="h-2 bg-gradient-to-r from-transparent via-white/20 to-transparent rounded animate-pulse w-3/5 mx-auto"
                          style={{ animationDuration: '1.5s', animationDelay: '0.4s' }} />
                   </div>
-                  
+
                   {/* Spinner */}
                   <div className="w-12 h-12 border-3 border-white/30 border-t-white rounded-full animate-spin mx-auto mb-4" />
-                  
+
                   {/* Status text */}
                   <p className="text-white text-lg font-medium">
-                    {isCapturingScreenshot ? 'Analyzing website...' :
-                     isPreparingDesign ? 'Preparing design...' :
+                    {isPreparingDesign ? 'Preparing design...' :
                      generationProgress.isGenerating ? 'Generating code...' :
                      'Loading...'}
                   </p>
-                  
+
                   {/* Subtle progress hint */}
                   <p className="text-white/60 text-sm mt-2">
-                    {isCapturingScreenshot ? 'Taking a screenshot of the site' :
-                     isPreparingDesign ? 'Understanding the layout and structure' :
+                    {isPreparingDesign ? 'Understanding your requirements' :
                      generationProgress.isGenerating ? 'Writing React components' :
                      'Please wait...'}
                   </p>
