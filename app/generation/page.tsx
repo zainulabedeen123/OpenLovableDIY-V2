@@ -2968,6 +2968,10 @@ Focus on creating a polished, functional application that matches the descriptio
           // Pass the createdSandboxData to ensure it's available
           await applyGeneratedCode(generatedCode, false, createdSandboxData || undefined);
 
+          // Wait for Vite to rebuild and HMR to pick up changes (5 seconds)
+          addChatMessage('Waiting for Vite to rebuild your app...', 'system');
+          await new Promise(resolve => setTimeout(resolve, 5000));
+
           addChatMessage(
             `Successfully created your React app${homeContextInput ? ` with your requested context: "${homeContextInput}"` : ''}! You can now ask me to modify sections or add features to the application.`,
             'ai',

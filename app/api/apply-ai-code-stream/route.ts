@@ -736,32 +736,24 @@ export async function POST(request: NextRequest) {
           }
         }
 
-        // Restart Vite dev server to pick up new files
+        // Trigger Vite HMR by touching the main entry file
         if (results.filesCreated.length > 0 || results.filesUpdated.length > 0) {
           try {
-            console.log('[apply-ai-code-stream] Restarting Vite dev server to pick up changes...');
+            console.log('[apply-ai-code-stream] Triggering Vite HMR...');
             await sendProgress({
               type: 'info',
-              message: 'Restarting dev server...'
+              message: 'Refreshing preview...'
             });
 
-            // Kill existing Vite process
-            await providerInstance.runCommand('pkill -f vite || true');
+            // Touch the main.jsx file to trigger Vite HMR
+            await providerInstance.runCommand('touch /vercel/sandbox/src/main.jsx || touch /vercel/sandbox/src/main.tsx');
 
-            // Wait a moment for the process to die
-            await new Promise(resolve => setTimeout(resolve, 1000));
+            // Wait for HMR to process
+            await new Promise(resolve => setTimeout(resolve, 2000));
 
-            // Start Vite dev server in background
-            providerInstance.runCommand('cd /vercel/sandbox && npm run dev').catch(() => {
-              // Ignore errors - Vite will run in background
-            });
-
-            // Wait for Vite to start
-            await new Promise(resolve => setTimeout(resolve, 3000));
-
-            console.log('[apply-ai-code-stream] Vite dev server restarted');
+            console.log('[apply-ai-code-stream] Vite HMR triggered');
           } catch (error) {
-            console.error('[apply-ai-code-stream] Failed to restart Vite:', error);
+            console.error('[apply-ai-code-stream] Failed to trigger HMR:', error);
             // Continue anyway - not critical
           }
         }
