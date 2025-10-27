@@ -1,10 +1,12 @@
 import sdk from '@stackblitz/sdk';
 import { auth } from '@webcontainer/api';
-import type { SandboxProvider, SandboxData } from '../types';
+import type { SandboxProvider, SandboxInfo } from '../types';
 
 export class StackBlitzProvider implements SandboxProvider {
   private vm: any = null;
   private projectId: string | null = null;
+  private projectFiles: Record<string, string> = {};
+  protected sandboxInfo: SandboxInfo | null = null;
 
   constructor() {
     // Initialize WebContainer auth if client ID is available
@@ -18,7 +20,7 @@ export class StackBlitzProvider implements SandboxProvider {
     }
   }
 
-  async createSandbox(): Promise<SandboxData> {
+  async createSandbox(): Promise<SandboxInfo> {
     console.log('[StackBlitzProvider] Creating new project...');
 
     // Generate a unique project ID
@@ -122,15 +124,22 @@ body {
       }
     };
 
-    // Return sandbox data immediately - the embed will be created on the client side
-    return {
-      success: true,
+    // Store project files for later use
+    this.projectFiles = project.files;
+
+    // Create and store sandbox info
+    this.sandboxInfo = {
       sandboxId: this.projectId,
       url: `https://stackblitz.com/edit/${this.projectId}`,
-      provider: 'stackblitz',
-      message: 'StackBlitz project created',
-      projectFiles: project.files
+      provider: 'stackblitz' as const,
+      createdAt: new Date()
     };
+
+    return this.sandboxInfo;
+  }
+
+  getProjectFiles(): Record<string, string> {
+    return this.projectFiles;
   }
 
   async writeFile(path: string, content: string): Promise<void> {

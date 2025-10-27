@@ -6,11 +6,16 @@ export async function POST(request: Request) {
     console.log('[create-stackblitz-sandbox] Creating StackBlitz sandbox...');
 
     const provider = new StackBlitzProvider();
-    const sandboxData = await provider.createSandbox();
+    const sandboxInfo = await provider.createSandbox();
+    const projectFiles = provider.getProjectFiles();
 
-    console.log('[create-stackblitz-sandbox] Sandbox created:', sandboxData.sandboxId);
+    console.log('[create-stackblitz-sandbox] Sandbox created:', sandboxInfo.sandboxId);
 
-    return NextResponse.json(sandboxData);
+    return NextResponse.json({
+      success: true,
+      ...sandboxInfo,
+      projectFiles
+    });
   } catch (error: any) {
     console.error('[create-stackblitz-sandbox] Error:', error);
     return NextResponse.json(
