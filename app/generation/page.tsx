@@ -704,18 +704,14 @@ Tip: I automatically detect and install npm packages from your code imports (lik
     for (const file of files) {
       try {
         console.log('[applyCodeToStackBlitz] Writing file:', file.path);
-
-        // Ensure content is a string
-        const contentString = String(file.content);
+        console.log('[applyCodeToStackBlitz] Content type:', typeof file.content);
+        console.log('[applyCodeToStackBlitz] Content preview:', file.content.substring(0, 100));
 
         // Use the StackBlitz file system API to write files
+        // The contents field should be a plain string
         await vm.applyFsDiff({
           create: {
-            [file.path]: {
-              file: {
-                contents: contentString
-              }
-            }
+            [file.path]: file.content
           },
           destroy: []
         });
