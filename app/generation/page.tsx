@@ -533,12 +533,17 @@ function AISandboxPage() {
         log('Sandbox created successfully!');
         log(`Sandbox ID: ${data.sandboxId}`);
         log(`URL: ${data.url}`);
-        
-        // Update URL with sandbox ID
-        const newParams = new URLSearchParams(searchParams.toString());
-        newParams.set('sandbox', data.sandboxId);
-        newParams.set('model', aiModel);
-        router.push(`/generation?${newParams.toString()}`, { scroll: false });
+
+        // Update URL with sandbox ID - but delay it to avoid interfering with state update
+        // Only update URL if not coming from home screen (initial generation)
+        if (!fromHomeScreen) {
+          setTimeout(() => {
+            const newParams = new URLSearchParams(searchParams.toString());
+            newParams.set('sandbox', data.sandboxId);
+            newParams.set('model', aiModel);
+            router.push(`/generation?${newParams.toString()}`, { scroll: false });
+          }, 100);
+        }
         
         // Fade out loading background after sandbox loads
         setTimeout(() => {
