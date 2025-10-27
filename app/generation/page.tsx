@@ -2635,25 +2635,25 @@ Tip: I automatically detect and install npm packages from your code imports (lik
     const projectDescription = homeUrlInput.trim();
     addChatMessage(`Starting to build: ${projectDescription}...`, 'system');
 
-    // Start creating sandbox
-    const sandboxPromise = !sandboxData ? createSandbox(true) : Promise.resolve(null);
+    // Start creating sandbox and capture the returned sandbox data
+    const sandboxPromise = !sandboxData ? createSandbox(true) : Promise.resolve(sandboxData);
 
     // Set loading stage immediately before hiding home screen
     setLoadingStage('planning');
     // Also ensure we're on preview tab to show the loading overlay
     setActiveTab('preview');
-    
+
     setTimeout(async () => {
       setShowHomeScreen(false);
       setHomeScreenFading(false);
-      
+
       // Clear the starting flag after transition
       setTimeout(() => {
         setIsStartingNewGeneration(false);
       }, 1000);
-      
-      // Wait for sandbox to be ready (if it's still creating)
-      await sandboxPromise;
+
+      // Wait for sandbox to be ready and get the sandbox data
+      const createdSandboxData = await sandboxPromise;
 
       // Now start the generation process
       setUrlInput(homeUrlInput);
@@ -2913,10 +2913,11 @@ Focus on creating a polished, functional application that matches the descriptio
           }
           
           setPromptInput(generatedCode);
-          
-          // First application for cloned site should not be in edit mode
-          await applyGeneratedCode(generatedCode, false);
-          
+
+          // First application for generated app should not be in edit mode
+          // Pass the createdSandboxData to ensure it's available
+          await applyGeneratedCode(generatedCode, false, createdSandboxData || undefined);
+
           addChatMessage(
             `Successfully created your React app${homeContextInput ? ` with your requested context: "${homeContextInput}"` : ''}! You can now ask me to modify sections or add features to the application.`,
             'ai',
