@@ -527,9 +527,16 @@ function AISandboxPage() {
           sandboxCreationPromiseRef.current = null; // Clear the promise ref
         console.log('[createSandbox] Setting sandboxData from creation:', data);
 
-        // Store in both state and ref to ensure it persists
+        // Store in ref first (synchronous)
         sandboxDataRef.current = data;
+        console.log('[createSandbox] Stored in sandboxDataRef:', sandboxDataRef.current);
+
+        // Then update state to trigger re-render
         setSandboxData(data);
+
+        // Force a re-render by updating a dummy state to ensure iframe renders
+        setShowLoadingBackground(false);
+        setTimeout(() => setShowLoadingBackground(false), 0);
 
         updateStatus('Sandbox active', true);
         log('Sandbox created successfully!');
@@ -2903,19 +2910,21 @@ Focus on creating a polished, functional application that matches the descriptio
           
           setPromptInput(generatedCode);
 
-          // Wait for React to update the sandboxData state and render the iframe
-          // Poll until the state is actually set (max 5 seconds)
+          // Wait for React to render the iframe element (max 5 seconds)
+          // We're using sandboxDataRef, so we need to wait for the component to re-render
           let attempts = 0;
           const maxAttempts = 50; // 50 * 100ms = 5 seconds max
-          while (!sandboxData && attempts < maxAttempts) {
+          while (!iframeRef.current && attempts < maxAttempts) {
             await new Promise(resolve => setTimeout(resolve, 100));
             attempts++;
           }
 
-          if (!sandboxData) {
-            console.warn('[generation] sandboxData state not set after 5 seconds, proceeding with override data');
+          if (!iframeRef.current) {
+            console.warn('[generation] Iframe not rendered after 5 seconds, but proceeding anyway');
+            console.log('[generation] sandboxDataRef.current:', sandboxDataRef.current);
+            console.log('[generation] sandboxData state:', sandboxData);
           } else {
-            console.log('[generation] sandboxData state confirmed:', sandboxData);
+            console.log('[generation] Iframe element confirmed:', iframeRef.current);
           }
 
           // First application for generated app should not be in edit mode
