@@ -755,7 +755,7 @@ Tip: I automatically detect and install npm packages from your code imports (lik
             'system'
           );
           setLoading(false);
-          setCodeApplicationState({ stage: 'idle' });
+          setCodeApplicationState({ stage: null });
           return;
         }
       }
