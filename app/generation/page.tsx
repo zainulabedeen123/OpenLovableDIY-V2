@@ -499,34 +499,38 @@ function AISandboxPage() {
   };
 
   const sandboxCreationRef = useRef<boolean>(false);
-  
-  const createSandbox = async (fromHomeScreen = false) => {
-    // Prevent duplicate sandbox creation
-    if (sandboxCreationRef.current) {
-      console.log('[createSandbox] Sandbox creation already in progress, skipping...');
-      return null;
+  const sandboxCreationPromiseRef = useRef<Promise<SandboxData | null> | null>(null);
+
+  const createSandbox = async (fromHomeScreen = false): Promise<SandboxData | null> => {
+    // Prevent duplicate sandbox creation - return existing promise if already in progress
+    if (sandboxCreationRef.current && sandboxCreationPromiseRef.current) {
+      console.log('[createSandbox] Sandbox creation already in progress, returning existing promise...');
+      return sandboxCreationPromiseRef.current;
     }
-    
-    sandboxCreationRef.current = true;
-    console.log('[createSandbox] Starting sandbox creation...');
-    setLoading(true);
-    setShowLoadingBackground(true);
-    updateStatus('Creating sandbox...', false);
-    setResponseArea([]);
-    setScreenshotError(null);
-    
-    try {
-      const response = await fetch('/api/create-ai-sandbox-v2', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({})
-      });
-      
-      const data = await response.json();
-      console.log('[createSandbox] Response data:', data);
-      
-      if (data.success) {
-        sandboxCreationRef.current = false; // Reset the ref on success
+
+    // Create and store the promise
+    const creationPromise = (async (): Promise<SandboxData | null> => {
+      sandboxCreationRef.current = true;
+      console.log('[createSandbox] Starting sandbox creation...');
+      setLoading(true);
+      setShowLoadingBackground(true);
+      updateStatus('Creating sandbox...', false);
+      setResponseArea([]);
+      setScreenshotError(null);
+
+      try {
+        const response = await fetch('/api/create-ai-sandbox-v2', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({})
+        });
+
+        const data = await response.json();
+        console.log('[createSandbox] Response data:', data);
+
+        if (data.success) {
+          sandboxCreationRef.current = false; // Reset the ref on success
+          sandboxCreationPromiseRef.current = null; // Clear the promise ref
         console.log('[createSandbox] Setting sandboxData from creation:', data);
         setSandboxData(data);
         updateStatus('Sandbox active', true);
@@ -580,16 +584,24 @@ Tip: I automatically detect and install npm packages from your code imports (lik
       } else {
         throw new Error(data.error || 'Unknown error');
       }
-    } catch (error: any) {
-      console.error('[createSandbox] Error:', error);
-      updateStatus('Error', false);
-      log(`Failed to create sandbox: ${error.message}`, 'error');
-      addChatMessage(`Failed to create sandbox: ${error.message}`, 'system');
-      throw error;
-    } finally {
-      setLoading(false);
-      sandboxCreationRef.current = false; // Reset the ref
-    }
+      } catch (error: any) {
+        console.error('[createSandbox] Error:', error);
+        updateStatus('Error', false);
+        log(`Failed to create sandbox: ${error.message}`, 'error');
+        addChatMessage(`Failed to create sandbox: ${error.message}`, 'system');
+        sandboxCreationRef.current = false; // Reset the ref on error
+        sandboxCreationPromiseRef.current = null; // Clear the promise ref
+        return null;
+      } finally {
+        setLoading(false);
+        sandboxCreationRef.current = false; // Reset the ref
+        sandboxCreationPromiseRef.current = null; // Clear the promise ref
+      }
+    })();
+
+    // Store the promise so subsequent calls can return it
+    sandboxCreationPromiseRef.current = creationPromise;
+    return creationPromise;
   };
 
   const displayStructure = (structure: any) => {
