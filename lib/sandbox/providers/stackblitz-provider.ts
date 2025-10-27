@@ -1,14 +1,15 @@
 import sdk from '@stackblitz/sdk';
 import { auth } from '@webcontainer/api';
-import type { SandboxProvider, SandboxInfo } from '../types';
+import { SandboxProvider, type SandboxInfo, type CommandResult, type SandboxProviderConfig } from '../types';
 
-export class StackBlitzProvider implements SandboxProvider {
+export class StackBlitzProvider extends SandboxProvider {
   private vm: any = null;
   private projectId: string | null = null;
   private projectFiles: Record<string, string> = {};
-  protected sandboxInfo: SandboxInfo | null = null;
 
-  constructor() {
+  constructor(config: SandboxProviderConfig = {}) {
+    super(config);
+
     // Initialize WebContainer auth if client ID is available
     const clientId = process.env.STACKBLITZ_CLIENT_ID || process.env.NEXT_PUBLIC_STACKBLITZ_CLIENT_ID;
     if (clientId) {
@@ -170,19 +171,68 @@ body {
     return files[normalizedPath] || '';
   }
 
-  async runCommand(command: string): Promise<string> {
+  async runCommand(command: string): Promise<CommandResult> {
     // StackBlitz doesn't support arbitrary command execution
     // Commands are handled automatically by the WebContainer
     console.log(`[StackBlitzProvider] Command not supported in StackBlitz: ${command}`);
-    return 'Command execution not supported in StackBlitz';
+    return {
+      stdout: '',
+      stderr: 'Command execution not supported in StackBlitz',
+      exitCode: 0,
+      success: true
+    };
   }
 
-  async deleteSandbox(): Promise<void> {
+  async listFiles(directory?: string): Promise<string[]> {
+    if (!this.vm) {
+      throw new Error('No active StackBlitz VM');
+    }
+
+    const files = await this.vm.getFsSnapshot();
+    const allFiles = Object.keys(files);
+
+    if (!directory) {
+      return allFiles;
+    }
+
+    const normalizedDir = directory.startsWith('/') ? directory.slice(1) : directory;
+    return allFiles.filter(file => file.startsWith(normalizedDir));
+  }
+
+  async installPackages(packages: string[]): Promise<CommandResult> {
+    // StackBlitz automatically installs packages from package.json
+    console.log(`[StackBlitzProvider] Package installation handled automatically: ${packages.join(', ')}`);
+    return {
+      stdout: `Packages will be installed automatically: ${packages.join(', ')}`,
+      stderr: '',
+      exitCode: 0,
+      success: true
+    };
+  }
+
+  getSandboxUrl(): string | null {
+    return this.sandboxInfo?.url || null;
+  }
+
+  getSandboxInfo(): SandboxInfo | null {
+    return this.sandboxInfo;
+  }
+
+  async terminate(): Promise<void> {
     if (this.vm) {
       // StackBlitz VMs are automatically cleaned up
       this.vm = null;
     }
     this.projectId = null;
+    this.sandboxInfo = null;
+  }
+
+  isAlive(): boolean {
+    return this.vm !== null && this.projectId !== null;
+  }
+
+  async deleteSandbox(): Promise<void> {
+    await this.terminate();
   }
 
   setVM(vm: any): void {
