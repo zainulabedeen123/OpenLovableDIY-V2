@@ -448,7 +448,9 @@ function AISandboxPage() {
 
         // Set the VM ref immediately so polling can find it
         stackblitzVMRef.current = vm;
-        console.log('[StackBlitz] VM object received, waiting for it to be fully ready...');
+        console.log('[StackBlitz] VM object received:', vm);
+        console.log('[StackBlitz] VM has applyFsDiff:', typeof vm?.applyFsDiff);
+        console.log('[StackBlitz] Waiting for VM to be fully ready...');
 
         // Wait for the VM to be fully ready by checking if we can access its methods
         // The VM is ready when the iframe has loaded and the WebContainer is initialized
@@ -460,11 +462,12 @@ function AISandboxPage() {
             // Try to access the VM's file system to check if it's ready
             // This will throw if the VM is not ready yet
             if (vm && typeof vm.applyFsDiff === 'function') {
-              console.log('[StackBlitz] VM is fully ready and functional');
+              console.log('[StackBlitz] VM is fully ready and functional after', attempts, 'attempts');
               break;
             }
           } catch (e) {
             // VM not ready yet, continue waiting
+            console.log('[StackBlitz] VM not ready yet, attempt', attempts, e);
           }
 
           await new Promise(resolve => setTimeout(resolve, 500));
@@ -475,7 +478,7 @@ function AISandboxPage() {
           console.warn('[StackBlitz] VM took longer than expected to be ready, but continuing anyway');
         }
 
-        console.log('[StackBlitz] Project embedded successfully');
+        console.log('[StackBlitz] Project embedded successfully, VM ref set');
       } catch (error) {
         console.error('[StackBlitz] Failed to embed project:', error);
       }
@@ -1758,12 +1761,13 @@ Tip: I automatically detect and install npm packages from your code imports (lik
       const effectiveSandbox = sandboxData || sandboxDataRef.current;
       if (effectiveSandbox?.projectFiles) {
         return (
-          <div className="relative w-full h-full">
+          <div className="relative w-full h-full bg-white">
             {/* StackBlitz Embed Container */}
             <div
               ref={stackblitzContainerRef}
-              className="w-full h-full"
+              className="w-full h-full min-h-screen"
               id="stackblitz-container"
+              style={{ minHeight: '600px' }}
             />
             
             {/* Package installation overlay - shows when installing packages or applying code */}
