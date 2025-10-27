@@ -7,8 +7,17 @@ export interface SandboxFile {
 export interface SandboxInfo {
   sandboxId: string;
   url: string;
-  provider: 'e2b' | 'vercel';
+  provider: 'e2b' | 'vercel' | 'stackblitz';
   createdAt: Date;
+}
+
+export interface SandboxData {
+  success: boolean;
+  sandboxId: string;
+  url: string;
+  provider: string;
+  message: string;
+  projectFiles?: Record<string, string>;
 }
 
 export interface CommandResult {
