@@ -16,7 +16,7 @@ export interface DatabaseInfo {
 export interface QueryResult {
   success: boolean;
   data?: any[];
-  rowCount?: number;
+  rowCount?: number | null;
   error?: string;
   fields?: Array<{ name: string; dataTypeID: number }>;
 }
