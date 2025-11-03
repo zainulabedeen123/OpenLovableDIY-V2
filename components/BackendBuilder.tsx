@@ -3,6 +3,8 @@
 import { useState, useEffect } from 'react';
 import { toast } from 'sonner';
 
+// Multi-tenant backend builder component
+
 interface Table {
   table_name: string;
   row_count: number;
