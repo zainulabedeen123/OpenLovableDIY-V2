@@ -27,6 +27,8 @@ import {
 } from '@/lib/icons';
 import { motion } from 'framer-motion';
 import CodeApplicationProgress, { type CodeApplicationState } from '@/components/CodeApplicationProgress';
+import BackendBuilder from '@/components/BackendBuilder';
+import { Toaster } from 'sonner';
 
 interface SandboxData {
   sandboxId: string;
@@ -81,7 +83,7 @@ function AISandboxPage() {
   const [homeScreenFading, setHomeScreenFading] = useState(false);
   const [homeUrlInput, setHomeUrlInput] = useState('');
   const [homeContextInput, setHomeContextInput] = useState('');
-  const [activeTab, setActiveTab] = useState<'generation' | 'preview'>('preview');
+  const [activeTab, setActiveTab] = useState<'generation' | 'preview' | 'backend'>('preview');
   const [showStyleSelector, setShowStyleSelector] = useState(false);
   const [selectedStyle, setSelectedStyle] = useState<string | null>(null);
   const [showLoadingBackground, setShowLoadingBackground] = useState(false);
@@ -1880,6 +1882,13 @@ Tip: I automatically detect and install npm packages from your code imports (lik
           )}
         </div>
       );
+    } else if (activeTab === 'backend') {
+      // Backend Builder Tab
+      return (
+        <div className="h-full w-full overflow-auto bg-gray-50 p-4">
+          <BackendBuilder />
+        </div>
+      );
     }
     return null;
   };
@@ -3592,13 +3601,13 @@ Focus on creating a polished, functional application that matches the descriptio
         <div className="flex-1 flex flex-col overflow-hidden">
           <div className="px-3 pt-4 pb-4 bg-white border-b border-gray-200 flex justify-between items-center">
             <div className="flex items-center gap-2">
-              {/* Toggle-style Code/View switcher */}
+              {/* Toggle-style Code/View/Backend switcher */}
               <div className="inline-flex bg-gray-100 border border-gray-200 rounded-md p-0.5">
                 <button
                   onClick={() => setActiveTab('generation')}
                   className={`px-3 py-1 rounded transition-all text-xs font-medium ${
-                    activeTab === 'generation' 
-                      ? 'bg-white text-gray-900 shadow-sm' 
+                    activeTab === 'generation'
+                      ? 'bg-white text-gray-900 shadow-sm'
                       : 'bg-transparent text-gray-600 hover:text-gray-900'
                   }`}
                 >
@@ -3612,8 +3621,8 @@ Focus on creating a polished, functional application that matches the descriptio
                 <button
                   onClick={() => setActiveTab('preview')}
                   className={`px-3 py-1 rounded transition-all text-xs font-medium ${
-                    activeTab === 'preview' 
-                      ? 'bg-white text-gray-900 shadow-sm' 
+                    activeTab === 'preview'
+                      ? 'bg-white text-gray-900 shadow-sm'
                       : 'bg-transparent text-gray-600 hover:text-gray-900'
                   }`}
                 >
@@ -3623,6 +3632,21 @@ Focus on creating a polished, functional application that matches the descriptio
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
                     </svg>
                     <span>View</span>
+                  </div>
+                </button>
+                <button
+                  onClick={() => setActiveTab('backend')}
+                  className={`px-3 py-1 rounded transition-all text-xs font-medium ${
+                    activeTab === 'backend'
+                      ? 'bg-white text-gray-900 shadow-sm'
+                      : 'bg-transparent text-gray-600 hover:text-gray-900'
+                  }`}
+                >
+                  <div className="flex items-center gap-1.5">
+                    <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4m0 5c0 2.21-3.582 4-8 4s-8-1.79-8-4" />
+                    </svg>
+                    <span>Backend</span>
                   </div>
                 </button>
               </div>
@@ -3677,6 +3701,7 @@ Focus on creating a polished, functional application that matches the descriptio
 
 
     </div>
+    <Toaster position="top-right" />
     </HeaderProvider>
   );
 }
