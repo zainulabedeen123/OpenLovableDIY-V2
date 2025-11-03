@@ -81,7 +81,7 @@ export default function DashboardPage() {
       </header>
 
       {/* Main Content */}
-      <main className="pt-24 px-6 pb-20">
+      <main className="pt-32 px-6 pb-20">
         <div className="max-w-7xl mx-auto">
           {/* Welcome Section */}
           <div className="mb-8">
