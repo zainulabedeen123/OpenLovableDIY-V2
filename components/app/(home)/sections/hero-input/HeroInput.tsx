@@ -15,7 +15,7 @@ export default function HeroInput() {
   const [url, setUrl] = useState<string>("");
 
   return (
-    <div className="max-w-552 mx-auto w-full z-[11] lg:z-[2] rounded-20 lg:-mt-76">
+    <div className="max-w-4xl mx-auto w-full z-[11] lg:z-[2] rounded-full lg:-mt-76">
       <div
         className="overlay bg-accent-white"
         style={{
@@ -24,12 +24,12 @@ export default function HeroInput() {
         }}
       />
 
-      <label className="p-16 flex gap-8 items-center w-full relative border-b border-black-alpha-5">
+      <label className="px-8 py-4 flex gap-8 items-center w-full relative border-b border-black-alpha-5 h-20 rounded-full">
         <Globe />
 
         <input
-          className="w-full bg-transparent text-body-input text-accent-black placeholder:text-black-alpha-48"
-          placeholder="https://example.com"
+          className="w-full bg-transparent text-body-input text-accent-black placeholder:text-black-alpha-48 h-full flex items-center"
+          placeholder="Ask OpenLovable to create something amazing..."
           type="text"
           value={url}
           onChange={(e) => setUrl(e.target.value)}
@@ -45,7 +45,7 @@ export default function HeroInput() {
         />
       </label>
 
-      <div className="p-10 flex justify-between items-center relative">
+      <div className="px-8 py-4 flex justify-between items-center relative rounded-full">
         <HeroInputTabs
           setTab={setTab}
           tab={tab}

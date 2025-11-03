@@ -256,8 +256,13 @@ export const encryptText = (
 
 export default function HomeHeroTitle() {
   return (
-    <h1 className="text-title-h1 mx-auto text-center [&_span]:text-heat-100 mb-12 lg:mb-16">
-     Open Lovable <span>DIY</span>
-    </h1>
+    <div className="mx-auto text-center mb-12 lg:mb-16">
+      <h1 className="text-6xl lg:text-7xl font-semibold text-white mb-4 leading-tight">
+        OpenLovable
+      </h1>
+      <h2 className="text-3xl lg:text-4xl text-gray-300 font-medium">
+        Lovable for Everyone
+      </h2>
+    </div>
   );
 }
