@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { ArrowRightIcon, MicrophoneIcon, PaperClipIcon } from "@heroicons/react/24/outline";
+import GoogleSignInButton from "@/components/GoogleSignInButton";
 
 export default function HomePage() {
   const [prompt, setPrompt] = useState("");
@@ -84,10 +85,8 @@ export default function HomePage() {
                   </svg>
                 </button>
 
-                {/* Signup Button */}
-                <button className="bg-gradient-to-r from-purple-600 to-pink-600 px-6 py-2 rounded-lg cursor-pointer hover:shadow-lg hover:shadow-purple-500/50 transition-all hover:scale-105">
-                  <span className="text-white text-sm font-medium">Signup</span>
-                </button>
+                {/* Google Sign In Button */}
+                <GoogleSignInButton />
               </div>
             </div>
           </div>
