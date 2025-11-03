@@ -4,6 +4,8 @@ import { useSession, signOut } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 import Image from "next/image";
+import DatabaseManager from "@/components/DatabaseManager";
+import { Toaster } from "sonner";
 
 export default function DashboardPage() {
   const { data: session, status } = useSession();
@@ -33,6 +35,7 @@ export default function DashboardPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-blue-900 to-purple-900">
+      <Toaster position="top-right" richColors />
       {/* Header */}
       <header className="fixed top-0 left-0 right-0 z-50 border-b border-white/10 bg-[#0F1629]/95 backdrop-blur-md">
         <div className="max-w-7xl mx-auto px-6 py-2">
@@ -140,11 +143,17 @@ export default function DashboardPage() {
             </div>
           </div>
 
+          {/* Database Manager Section */}
+          <div className="mt-12">
+            <h2 className="text-2xl font-bold text-white mb-6">Database Management</h2>
+            <DatabaseManager />
+          </div>
+
           {/* Quick Actions */}
           <div className="mt-12">
             <h2 className="text-2xl font-bold text-white mb-6">Quick Actions</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <button 
+              <button
                 onClick={() => router.push('/')}
                 className="bg-gradient-to-r from-purple-600 to-pink-600 p-6 rounded-xl hover:shadow-lg hover:shadow-purple-500/50 transition-all hover:scale-105 text-left"
               >
